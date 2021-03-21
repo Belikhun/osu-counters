@@ -1,0 +1,272 @@
+:root {
+    --animation-speed: 1.7s
+}
+
+body {
+    background-color: black;
+    font-family: comfortaa;
+    margin: unset;
+}
+
+#app {
+    position: relative;
+    display: block;
+    
+    width: 100vw;
+    height: 100vh;
+}
+
+#app > .main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    width: 100%;
+    height: 100%;
+
+    transition: padding var(--animation-speed) ease;
+    overflow: hidden;
+}
+
+#app > .main > .chartContainer {
+    position: relative;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    width: 100%;
+}
+
+#app > .main > .chartContainer > .chart {
+    position: absolute;
+    flex: 1 1 0;
+    width: 100%;
+}
+
+#app > .main > .chartContainer > .chart > .indicator {
+    position: absolute;
+    display: block;
+
+    bottom: 10px;
+    width: 2px;
+    height: 100%;
+    background-color: rgba(184, 184, 184, 0.5);
+}
+
+#app > .main > .chartContainer > .chart > .indicator::before {
+    content: "";
+    position: absolute;
+    display: block;
+
+    top: 0;
+    left: 1px;
+    width: 12px;
+    height: 32px;
+    border-radius: 6px;
+
+    background-color: rgb(192, 192, 192);
+    transform: translateX(-50%);
+}
+
+#app > .main > .hits {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-grow: 0;
+
+    width: 100%;
+    padding: 5px;
+    margin: -5px 5px 5px 5px;
+    text-align: center;
+    font-weight: 600;
+}
+
+#app > .main > .hits > .hit {
+    position: relative;
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 8px;
+    padding: 6px 18px;
+    border-radius: 60px;
+
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    background-color: rgba(68, 68, 68, 0.4);
+
+    transition: all 0.2s ease;
+}
+
+#app > .main > .hits > .hit.big {
+    flex-grow: 1;
+}
+
+#app > .main > .hits > .hit.mapPos {
+    min-width: 260px;
+}
+
+#app > .main > .hits > .hit.pp {
+    min-width: 220px;
+}
+
+#app > .main > .hits > .hit.count {
+    min-width: 120px;
+}
+
+#app > .main > .hits > .hit::before {
+    content: "sample";
+    font-size: 15px;
+    font-weight: 900;
+    text-transform: lowercase;
+    margin-right: 10px;
+}
+
+#app > .main > .hits > .hit.mods::before {
+    content: "mods";
+}
+
+#app > .main > .hits > .hit.mapPos::before {
+    content: "thời gian";
+}
+
+#app > .main > .hits > .hit.SSpp::before {
+    content: "SS";
+    font-size: 22px;
+}
+
+#app > .main > .hits > .hit.a99pp::before {
+    content: "99%";
+}
+
+#app > .main > .hits > .hit.a98pp::before {
+    content: "98%";
+}
+
+#app > .main > .hits > .hit.a95pp::before {
+    content: "95%";
+}
+
+#app > .main > .hits > .hit.a90pp::before {
+    content: "90%";
+}
+
+#app > .main > .hits > .hit.whitesmoke {
+    background-color: rgba(238, 238, 238, 0.8);
+    color: rgb(28, 28, 28);
+}
+
+#app > .main > .hits > .hit.blue {
+    background-color: rgba(68, 170, 221, 0.8);
+}
+
+#app > .main > .hits > .hit.green {
+    background-color: rgba(135, 180, 0, 0.8);
+}
+
+#app > .main > .hits > .hit.yellow {
+    background-color: rgba(246, 195, 28, 0.7);
+}
+
+#app > .main > .hits > .hit.red {
+    background-color: rgba(221, 45, 69, 0.8);
+}
+
+#app > .main > .hits > .hit.miss::before {
+    content: "miss";
+}
+
+/** AMN **/
+
+#app > .main > .chartContainer {
+    visibility: hidden;
+}
+
+#app > .main > .hits > .hit {
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+#app > .main:not(.NotRunning) > .chartContainer {
+    animation: blink-OpBmp 0.2s linear 4.8s;
+    animation-fill-mode: forwards;
+}
+
+#app > .main:not(.NotRunning) > .hits > .hit {
+    animation: show-Slide 0.6s cubic-bezier(0.33, 1, 0.68, 1) 4.5s;
+    animation-fill-mode: forwards;
+}
+
+#app > .main:not(.NotRunning) > .hits > .hit:nth-child(2) {
+    animation-delay: 4.6s;
+}
+
+#app > .main:not(.NotRunning) > .hits > .hit:nth-child(3) {
+    animation-delay: 4.7s;
+}
+
+#app > .main:not(.NotRunning) > .hits > .hit:nth-child(4) {
+    animation-delay: 4.8s;
+}
+
+#app > .main:not(.NotRunning) > .hits > .hit:nth-child(5) {
+    animation-delay: 4.9s;
+}
+
+#app > .main:not(.NotRunning) > .hits > .hit:nth-child(6) {
+    animation-delay: 5s;
+}
+
+#app > .main:not(.NotRunning) > .hits > .hit:nth-child(7) {
+    animation-delay: 5.1s;
+}
+
+/** =================== ANIMATIONS =================== **/
+
+@keyframes show-Slide {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    20% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+        transform: unset;
+    }
+}
+
+@keyframes blink-OpBmp {
+    0%,
+    25%,
+    100% {
+        visibility: visible;
+    }
+
+    50% {
+        opacity: 0.4;
+        visibility: visible;
+    }
+
+    60% {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    30%,
+    40%,
+    70%,
+    90% {
+        visibility: hidden;
+    }
+}

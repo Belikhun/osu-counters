@@ -1,0 +1,70 @@
+body {
+    margin: unset;
+    font-family: comfortaa;
+    color: white;
+    background-color: black;
+}
+
+#kpsValue {
+    position: relative;
+    display: block;
+
+    font-size: 32px;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#kpsValue::before {
+    content: "KPS";
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+#app > .keys {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+
+    width: 100%;
+}
+
+#app > .keys > .key {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    flex-basis: 0;
+
+    margin: 5px;
+    padding: 45px 10px 5px;
+
+    background-color: rgba(68, 68, 68, 0.4);
+
+    animation: pressed 0.2s linear;
+}
+
+#app > .keys > .key > .label {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#app > .keys > .key > .count {
+    font-size: 36px;
+}
+
+@keyframes pressed {
+    0% {
+        background-color: rgba(90, 90, 90, 0.6);
+    }
+
+    100% {
+        background-color: rgba(68, 68, 68, 0.4);
+    }
+}

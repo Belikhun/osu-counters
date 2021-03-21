@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<title>KeyPress</title>
+		<link href="./main.css" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&display=swap" rel="stylesheet" />
+
+		<!-- This is a development version of Vue.js -->
+		<script src="https://unpkg.com/vue@3.0.0/dist/vue.global.js"></script>
+		<script src="/lib/reconnecting-websocket.js"></script>
+		<script src="/lib/consts.js"></script>
+		<script src="/lib/utils.js"></script>
+	</head>
+
+	<body>
+		<div id="app" v-cloak>
+			<span id="kpsValue">0</span>
+
+			<div class="keys">
+				<span class="key" data-key-token="key-q.txt">
+					<p class="label">Q</p>
+					<div class="count">{{getToken('key-q.txt')}}</div>
+				</span>
+	
+				<span class="key" data-key-token="key-w.txt">
+					<p class="label">W</p>
+					<div class="count">{{getToken('key-w.txt')}}</div>
+				</span>
+
+				<span class="key" data-key-token="key-r.txt">
+					<p class="label">R</p>
+					<div class="count">{{getToken('key-r.txt')}}</div>
+				</span>
+			</div>
+
+			<div class="keys">
+				<span class="key" data-key-token="key-a.txt">
+					<p class="label">A</p>
+					<div class="count">{{getToken('key-a.txt')}}</div>
+				</span>
+	
+				<span class="key" data-key-token="key-s.txt">
+					<p class="label">S</p>
+					<div class="count">{{getToken('key-s.txt')}}</div>
+				</span>
+
+				<span class="key" data-key-token="key-d.txt">
+					<p class="label">D</p>
+					<div class="count">{{getToken('key-d.txt')}}</div>
+				</span>
+			</div>
+
+			<div class="keys">
+				<span class="key" data-key-token="key-m2.txt">
+					<p class="label">ML</p>
+					<div class="count">{{getToken('key-m2.txt')}}</div>
+				</span>
+	
+				<span class="key" data-key-token="key-m1.txt">
+					<p class="label">MR</p>
+					<div class="count">{{getToken('key-m1.txt')}}</div>
+				</span>
+			</div>
+		</div>
+		<script src="./main.js" type="module"></script>
+	</body>
+</html>

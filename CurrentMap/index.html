@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Current Map</title>
+    <link href="./main.css" rel="stylesheet">
+    <!-- This is a development version of Vue.js -->
+    <script src="https://unpkg.com/vue@3.0.0/dist/vue.global.js"></script>
+    <script src="/lib/reconnecting-websocket.js"></script>
+    <script src="/lib/consts.js"></script>
+    <script src="/lib/utils.js"></script>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <div class="main" :class="currentStatus">
+            <div class="outer left">
+                <p class="outer-left length">
+                    độ dài <strong>{{totalTime}}</strong>
+                </p>
+                <p class="outer-left bpm">
+                    bpm <strong>{{getToken('mBpm')}}</strong>
+                </p>
+            </div>
+    
+            <Background class="box">
+                <div class="inner">
+                    <div class="title">
+                        <h1 class="title">
+                            {{getToken('mapArtistTitle')}}
+                        </h1>
+                    </div>
+                    <div class="mapinfo">
+                        <p class="mapper info">
+                            được tạo bởi <strong> {{getToken('creator')}}</strong>
+                        </p>
+                        <p class="difficulty info">
+                            độ khó <strong> {{getToken('diffName')}}</strong>
+                        </p>
+                    </div>
+                </div>
+            </Background>
+    
+            <div class="outer right">
+                <p class="outer-right info">
+                    CS <strong>{{getToken('mCS')}}</strong> / AR <strong>{{getToken('mAR')}}</strong> / OD
+                    <strong>{{getToken('mOD')}}</strong>
+                </p>
+                <p class="outer-right star">
+                    đánh giá sao <strong>{{getToken('mStars')}}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    <script src="./main.js" type="module"></script>
+</body>
+
+</html>

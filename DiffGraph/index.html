@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Diff Graph</title>
+	<link href="./main.css" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;700&display=swap" rel="stylesheet" />
+	<!-- This is a development version of Vue.js -->
+	<script src="https://unpkg.com/vue@3.0.0/dist/vue.global.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+	<script src="/lib/reconnecting-websocket.js"></script>
+	<script src="/lib/consts.js"></script>
+	<script src="/lib/utils.js"></script>
+</head>
+
+<body>
+	<div id="app" v-cloak>
+		<div class="main" :class="currentStatus">
+			<div class="chartContainer">
+				<div class="chart">
+					<div class="indicator" :style="progressIndicatorStyle"></div>
+					<Linechart :settings="overlaySettings" :style="chartStyle" :points="mapStrains"> </Linechart>
+				</div>
+	
+				<div class="chart" :style="progressChartStyle">
+					<Linechart :settings="progressChartSettings" :style="chartStyle" :points="mapStrains"> </Linechart>
+				</div>
+			</div>
+	
+			<div class="hits">
+				<div class="hit big mods">{{getToken('mods')}}</div>
+				<div class="hit big mapPos">{{mapPos}}/{{mapLength}}</div>
+				<div class="hit big SSpp whitesmoke">{{getToken('osu_mSSPP', 2)}}pp</div>
+				<div class="hit big a99pp yellow">{{getToken('osu_m99PP', 2)}}pp</div>
+				<div class="hit big a98pp yellow">{{getToken('osu_m98PP', 2)}}pp</div>
+				<div class="hit big a95pp green">{{getToken('osu_m95PP', 2)}}pp</div>
+				<div class="hit big a90pp blue">{{getToken('osu_m90PP', 2)}}pp</div>
+			</div>
+		</div>
+	</div>
+	<script src="./main.js" type="module"></script>
+</body>
+
+</html>

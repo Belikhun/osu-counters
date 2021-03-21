@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<title>Plays</title>
+		<link href="./main.css" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&display=swap" rel="stylesheet" />
+
+		<!-- This is a development version of Vue.js -->
+		<script src="https://unpkg.com/vue@3.0.0/dist/vue.global.js"></script>
+		<script src="/lib/reconnecting-websocket.js"></script>
+		<script src="/lib/consts.js"></script>
+		<script src="/lib/utils.js"></script>
+	</head>
+
+	<body>
+		<div id="app" v-cloak>
+			<div class="main" :class="currentStatus">
+				<div class="group hits" :class="showIfInPlayingField">
+					<div class="group">
+						<div class="item big center grade">
+							<span class="label">hạng</span>
+							<span class="value" :class="gradeStyle">{{grade}}</span>
+							<span class="right">{{getToken('acc', 3)}}%</span>
+						</div>
+					</div>
+	
+					<div class="group row">
+						<div class="item blue">
+							<span class="label">300</span>
+							<span class="value">{{getToken('c300')}}</span>
+						</div>
+	
+						<div class="item blue">
+							<span class="label">geki</span>
+							<span class="value">{{getToken('geki')}}</span>
+						</div>
+					</div>
+	
+					<div class="group row">
+						<div class="item green">
+							<span class="label">100</span>
+							<span class="value">{{getToken('c100')}}</span>
+						</div>
+	
+						<div class="item green">
+							<span class="label">katsu</span>
+							<span class="value">{{getToken('katsu')}}</span>
+						</div>
+					</div>
+	
+					<div class="group row">
+						<div class="item yellow">
+							<span class="label">50</span>
+							<span class="value">{{getToken('c50')}}</span>
+						</div>
+	
+						<div class="item red">
+							<span class="label">miss</span>
+							<span class="value">{{getToken('miss')}}</span>
+						</div>
+					</div>
+	
+					<div class="group">
+						<div class="item">
+							<span class="label">trượt slider</span>
+							<span class="value">{{getToken('sliderBreaks')}} lần</span>
+						</div>
+
+						<div class="item">
+							<span class="label">combo</span>
+							<span class="value">{{getToken('combo')}}x</span>
+							<span class="right">{{getToken('currentMaxCombo')}}x/{{getToken('maxCombo')}}x</span>
+						</div>
+					</div>
+	
+					<div class="space"></div>
+				</div>
+
+				<div class="group map" :class="hideIfPlaying">
+					<div class="item">
+						<span class="label">map id</span>
+						<span class="value">{{getToken('mapsetid')}}</span>
+					</div>
+
+					<div class="item">
+						<span class="label">circles</span>
+						<span class="value">{{getToken('circles')}}</span>
+					</div>
+
+					<div class="group row">
+						<div class="item">
+							<span class="label">sliders</span>
+							<span class="value">{{getToken('sliders')}}</span>
+						</div>
+
+						<div class="item">
+							<span class="label">spinners</span>
+							<span class="value">{{getToken('spinners')}}</span>
+						</div>
+					</div>
+
+					<div class="space"></div>
+				</div>
+
+				<div class="group">
+					<div class="item big">
+						<span class="label">pp</span>
+						<span class="value">{{ppValue}}</span>
+						<span v-if="isPlayingOrWatching">{{getToken('ppIfRestFced', 2)}}pp nếu FC đoạn còn lại</span>
+						<span v-else>{{getToken('osu_mSSPP', 2)}}pp nếu FC</span>
+					</div>
+
+					<div class="group play" :class="showIfPlaying">
+						<div class="item" :class="unstableStyle">
+							<span class="label">độ bất ổn định</span>
+							<span class="value">{{getToken('unstableRate', 2)}}</span>
+						</div>
+					</div>
+
+					<div class="item">
+						<span class="label">đánh giá sao</span>
+						<span class="value">{{getToken('liveStarRating', 2)}}</span>
+						<span class="right">{{getToken('mStars', 2)}}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="./main.js" type="module"></script>
+	</body>
+</html>

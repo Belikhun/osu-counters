@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<title>Overlay</title>
+		<link href="./main.css" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&display=swap" rel="stylesheet" />
+
+		<!-- This is a development version of Vue.js -->
+		<script src="https://unpkg.com/vue@3.0.0/dist/vue.global.js"></script>
+		<script src="/lib/reconnecting-websocket.js"></script>
+		<script src="/lib/consts.js"></script>
+		<script src="/lib/utils.js"></script>
+	</head>
+
+	<body>
+		<div id="app" v-cloak>
+			<div class="main showBG">
+				<div class="ring l1"></div>
+				<div class="ring l l2"></div>
+
+				<div class="ring l3"></div>
+				<div class="ring l l4"></div>
+
+				<div class="line top">
+					<div class="line"></div>
+					<div class="rect l r1"></div>
+					<div class="rect l r2"></div>
+					<div class="dots l"></div>
+
+					<div class="rect r r1"></div>
+					<div class="rect r r2"></div>
+					<div class="dots r"></div>
+				</div>
+
+				<div class="line bottom">
+					<div class="line"></div>
+					<div class="rect l r1"></div>
+					<div class="rect l r2"></div>
+					<div class="dots l"></div>
+
+					<div class="rect r r1"></div>
+					<div class="rect r r2"></div>
+					<div class="dots r"></div>
+				</div>
+
+				<div class="cLine l">
+					<div class="rect"></div>
+					<div class="dots v"></div>
+					<div class="rect"></div>
+				</div>
+
+				<div class="cLine r">
+					<div class="rect"></div>
+					<div class="dots v"></div>
+					<div class="rect"></div>
+				</div>
+
+				<div class="clockSpinner">
+					<svg>
+						<circle cx="50%" cy="50%" r="162" fill="none"/>
+					</svg>
+				</div>
+
+				<canvas id="spinRing" width="500" height="500"></canvas>
+
+				<div class="topText">{{currentStatus}}</div>
+
+				<div class="middleText">
+					<div class="top"></div>
+					<div class="bottom"></div>
+				</div>
+
+				<div class="clock">
+					<div class="timeD"></div>
+					<div class="time"></div>
+					<div class="ms"></div>
+				</div>
+			</div>
+		</div>
+
+		<script src="./main.js" type="module"></script>
+	</body>
+</html>
