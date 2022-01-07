@@ -407,6 +407,7 @@ const scene = {
 	runClock: false,
 	statusQueue: [],
 	handingStatus: false,
+	spinnerReseted: false,
 
 	playedIntro1: false,
 	playingIntro1: false,
@@ -556,10 +557,13 @@ const scene = {
 		this.updateClock();
 	},
 
-	tick() {
-		//? Trigger Reflow
-		this.spinner.style.animation = "none";
-		requestAnimationFrame(() => this.spinner.style.animation = null);
+	async tick() {
+		if (!this.spinnerReseted) {
+			this.spinner.style.animation = "none";
+			await nextFrameAsync();
+			this.spinner.style.animation = null;
+			this.spinnerReseted = true;
+		}
 	},
 
 	async __intro1() {
@@ -699,6 +703,7 @@ const scene = {
 		spinRing.reset();
 		this.mainContainer.classList.remove("showRing", "showSpinner");
 		this.clockD.innerText = this.clockT.innerText = this.clockMS.innerText = "";
+		this.spinnerReseted = false;
 		this.playedIntro2 = false;
 	},
 }
@@ -725,7 +730,7 @@ const app = {
 		data.rws = watchTokens([], (values) => Object.assign(data.tokens, values));
 
 		let currentStatus = Vue.computed(() => {
-			let s = rawStatus[getToken("rawStatus")]
+			let s = rawStatus[getToken("osuIsRunning") ? (getToken("rawStatus") === "-1" ? 0 : getToken("rawStatus")) : "-1"];
 			scene.updateStatus(s);
 			return s;
 		});

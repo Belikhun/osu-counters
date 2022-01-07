@@ -158,6 +158,22 @@ body {
     content: "90%";
 }
 
+#app > .main > .hits > .hit.s1mpp::before {
+    content: "1M";
+}
+
+#app > .main > .hits > .hit.s990kpp::before {
+    content: "990K";
+}
+
+#app > .main > .hits > .hit.s950kpp::before {
+    content: "950K";
+}
+
+#app > .main > .hits > .hit.s900kpp::before {
+    content: "900K";
+}
+
 #app > .main > .hits > .hit.whitesmoke {
     background-color: rgba(238, 238, 238, 0.8);
     color: rgb(28, 28, 28);
@@ -226,6 +242,34 @@ body {
 
 #app > .main:not(.NotRunning) > .hits > .hit:nth-child(7) {
     animation-delay: 5.1s;
+}
+
+#app > .main.SongSelect > .hits > .hit:nth-child(1) {
+    animation-delay: 0s;
+}
+
+#app > .main.SongSelect > .hits > .hit:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+#app > .main.SongSelect > .hits > .hit:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+#app > .main.SongSelect > .hits > .hit:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+#app > .main.SongSelect > .hits > .hit:nth-child(5) {
+    animation-delay: 0.4s;
+}
+
+#app > .main.SongSelect > .hits > .hit:nth-child(6) {
+    animation-delay: 0.5s;
+}
+
+#app > .main.SongSelect > .hits > .hit:nth-child(7) {
+    animation-delay: 0.6s;
 }
 
 /** =================== ANIMATIONS =================== **/

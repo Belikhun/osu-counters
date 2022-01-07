@@ -74,9 +74,10 @@ body {
     margin: 5px 10px 5px 0;
     padding: 6px 14px;
     box-sizing: border-box;
+    border-radius: 7px;
     visibility: hidden;
 
-    background-color: rgba(68, 68, 68, 0.4);
+    background-color: rgb(33, 33, 33);
     transition: background-color 0.3s ease-out;
 }
 
@@ -120,6 +121,100 @@ body {
     font-weight: 900;
 }
 
+#app > .main .group > .item > .progBar {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 10px;
+
+    background-color: rgb(94, 94, 94);
+    overflow: hidden;
+}
+
+#app > .main .group > .item > .progBar.hide:not(.noHide) {
+    display: none;
+}
+
+#app > .main .group > .item > .progBar.hide {
+    margin-bottom: 10px;
+}
+
+#app > .main .group > .item > .progBar > .bar {
+    position: absolute;
+    display: block;
+    left: 0;
+    height: 100%;
+
+    background-color: white;
+    transition: width 0.1s ease-in-out;
+}
+
+#app > .main .group > .item > .progBar > .bar.green {
+    background-color: rgb(65, 240, 109);
+}
+
+#app > .main .group > .item > .progBar > .bar.orange {
+    background-color: rgb(243, 152, 66);
+}
+
+#app > .main .group > .item > .progBar > .bar.blue {
+    background-color: rgb(131, 216, 255);
+}
+
+#app > .main .group > .item > .progBar > .bar.purple {
+    background-color: rgb(219, 146, 255);
+}
+
+#app > .main .group > .item > .progBar > .bar.yellow {
+    background-color: rgb(255, 238, 110);
+}
+
+#app > .main .group > .item > .deltaBar {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 6px;
+    margin-bottom: 16px;
+
+    background-color: rgb(94, 94, 94);
+}
+
+#app > .main .group > .item > .deltaBar.hide {
+    display: none;
+}
+
+#app > .main .group > .item > .deltaBar::before,
+#app > .main .group > .item > .deltaBar::after,
+#app > .main .group > .item > .deltaBar > .left,
+#app > .main .group > .item > .deltaBar > .right {
+    position: absolute;
+    display: block;
+    right: 50%;
+    height: 100%;
+    background-color: rgb(255, 63, 102);
+
+    transition: width 0.3s ease-in-out;
+}
+
+#app > .main .group > .item > .deltaBar::before,
+#app > .main .group > .item > .deltaBar::after {
+    content: "";
+    width: 50%;
+}
+
+#app > .main .group > .item > .deltaBar::after,
+#app > .main .group > .item > .deltaBar > .right {
+    right: unset;
+    left: 50%;
+
+    background-color: rgb(151, 255, 91);
+}
+
+#app > .main .group > .item > .deltaBar > .left,
+#app > .main .group > .item > .deltaBar > .right {
+    height: 300%;
+}
+
 #app > .main .group > .item.big > .value {
     font-size: 52px;
 }
@@ -138,7 +233,12 @@ body {
     position: relative;
     display: block;
 
+    width: 100%;
     height: 5px;
+}
+
+#app > .main .space.large {
+    height: 15px;
 }
 
 /** Custom Item Style **/

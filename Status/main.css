@@ -416,24 +416,22 @@ body {
 	stroke-dashoffset: 0;
 
 	animation:
-        spinnerDash 1s cubic-bezier(0.22, 1, 0.36, 1) 1;
+        spinnerDash 1s;
 
-    animation-play-state: paused;
-}
-
-#app > .main.showSpinner > .clockSpinner > svg > circle {
-    animation-play-state: running;
+    animation-iteration-count: infinite;
 }
 
 @keyframes spinnerDash {
 	0% {
-		stroke-dasharray: 0, 1018;
+        stroke-dasharray: 0, 1018;
         stroke-dashoffset: 0;
+        animation-timing-function: cubic-bezier(0.32, 0, 0.67, 0);
 	}
 
-    10% {
+    20% {
         stroke-dasharray: 640, 1018;
         stroke-dashoffset: 0;
+        animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
     }
 
 	100% {

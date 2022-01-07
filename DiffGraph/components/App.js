@@ -1,5 +1,30 @@
 import lineChart from './LineChart.js';
 
+const rawStatus = {
+	0: "MainMenu",
+	1: "EditingMap",
+	2: "Playing",
+	3: "NotRunning",
+	4: "SongSelectEdit",
+	5: "SongSelect",
+	7: "ResultsScreen",
+	8: "Watching",
+	10: "GameStartupAnimation",
+	11: "MultiplayerRooms",
+	12: "MultiplayerRoom",
+	13: "MultiplayerSongSelect",
+	14: "MultiplayerResultsscreen",
+	15: "OsuDirect",
+	16: "Editing",
+	17: "RankingTagCoop",
+	18: "RankingTeam",
+	19: "ProcessingBeatmaps",
+	22: "Tourney",
+	32: "ResultsScreen",
+	"-1": "NotRunning",
+	"-2": "Unknown"
+}
+
 const app = {
 	name: 'App',
 	components: {
@@ -21,7 +46,7 @@ const app = {
 		});
 
 		const getWebOverlaySettings = () =>
-			fetch(`${config.getUrl()}/settings`)
+			fetch(`${overlay.config.getUrl()}/settings`)
 			.then((response) => response.json())
 			.then((responseData) => JSON.parse(responseData.WebOverlay_Config));
 
@@ -46,37 +71,15 @@ const app = {
 				.join(":")
 		});
 
+		let isMania = Vue.computed(() => getToken('gameMode') === 'OsuMania');
+
 		let mapPos = Vue.computed(
 			() => getToken("mapPosition")
 				.split(".")[0]
 				.replace("00:", "")
 		);
 
-		let currentStatus = Vue.computed(() => ({
-			0: "MainMenu",
-			1: "EditingMap",
-			2: "Playing",
-			3: "NotRunning",
-			4: "SongSelectEdit",
-			5: "SongSelect",
-			7: "ResultsScreen",
-			8: "Watching",
-			10: "GameStartupAnimation",
-			11: "MultiplayerRooms",
-			12: "MultiplayerRoom",
-			13: "MultiplayerSongSelect",
-			14: "MultiplayerResultsscreen",
-			15: "OsuDirect",
-			16: "Editing",
-			17: "RankingTagCoop",
-			18: "RankingTeam",
-			19: "ProcessingBeatmaps",
-			22: "Tourney",
-			32: "ResultsScreen",
-			"-1": "NotRunning",
-			"-2": "Unknown"
-		}[getToken("rawStatus")]));
-
+		let currentStatus = Vue.computed(() => rawStatus[getToken("osuIsRunning") ? (getToken("rawStatus") === "-1" ? 0 : getToken("rawStatus")) : "-1"]);
 		let mapProgress = Vue.computed(() => getToken('time') / (getToken('totaltime') / 1000));
 
 		return {
@@ -89,7 +92,8 @@ const app = {
 			mapPos,
 			mapProgress,
 			mapLength,
-			currentStatus
+			currentStatus,
+			isMania
 		};
 	},
 

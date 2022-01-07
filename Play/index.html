@@ -2,7 +2,8 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Plays</title>
 		<link href="./main.css" rel="stylesheet" />
 		<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&display=swap" rel="stylesheet" />
@@ -22,7 +23,19 @@
 						<div class="item big center grade">
 							<span class="label">hạng</span>
 							<span class="value" :class="gradeStyle">{{grade}}</span>
-							<span class="right">{{getToken('acc', 3)}}%</span>
+
+							<span class="progBar">
+								<span id="accBarCurrent" class="bar orange"></span>
+								<span id="accBarReal" class="bar blue"></span>
+							</span>
+
+							<span class="deltaBar">
+								<span id="accBarLeft" class="left"></span>
+								<span id="accBarRight" class="right"></span>
+							</span>
+
+							<div class="space large"></div>
+							<span class="right">{{realAcc}}% / {{accValue}}%</span>
 						</div>
 					</div>
 	
@@ -63,15 +76,17 @@
 					</div>
 	
 					<div class="group">
-						<div class="item">
+						<!-- <div class="item">
 							<span class="label">trượt slider</span>
 							<span class="value">{{getToken('sliderBreaks')}} lần</span>
-						</div>
+						</div> -->
 
 						<div class="item">
 							<span class="label">combo</span>
 							<span class="value">{{getToken('combo')}}x</span>
-							<span class="right">{{getToken('currentMaxCombo')}}x/{{getToken('maxCombo')}}x</span>
+
+							<span class="right" v-if="isMania">{{getToken('currentMaxCombo')}}x</span>
+							<span class="right" v-else>{{getToken('currentMaxCombo')}}x/{{getToken('maxCombo')}}x</span>
 						</div>
 					</div>
 	
@@ -108,8 +123,22 @@
 					<div class="item big">
 						<span class="label">pp</span>
 						<span class="value">{{ppValue}}</span>
-						<span v-if="isPlayingOrWatching">{{getToken('ppIfRestFced', 2)}}pp nếu FC đoạn còn lại</span>
-						<span v-else>{{getToken('osu_mSSPP', 2)}}pp nếu FC</span>
+
+						<span class="progBar noHide" :class="showIfInPlayingField">
+							<span id="ppBarIfRestFC" class="bar purple"></span>
+							<span id="ppBarCurrent" class="bar yellow"></span>
+						</span>
+
+						<span class="deltaBar" :class="showIfInPlayingField">
+							<span id="ppBarLeft" class="left"></span>
+							<span id="ppBarRight" class="right"></span>
+						</span>
+
+						<span v-if="isPlayingOrWatching && !isMania">{{getToken('ppIfRestFced', 2)}}pp nếu SS đoạn còn lại</span>
+						<span v-else>
+							<template v-if="isMania">{{getToken('mania_m1_000_000PP', 2)}}pp nếu SS</template>
+							<template v-else>{{getToken('osu_mSSPP', 2)}}pp nếu SS</template>
+						</span>
 					</div>
 
 					<div class="group play" :class="showIfPlaying">
