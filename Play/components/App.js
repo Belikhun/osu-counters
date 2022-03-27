@@ -53,7 +53,16 @@ const app = {
 		// or request them later using helper getToken method above
 		data.rws = watchTokens([], (values) => Object.assign(data.tokens, values));
 
-		let currentStatus = Vue.computed(() => rawStatus[getToken("osuIsRunning") ? (getToken("rawStatus") === "-1" ? 0 : getToken("rawStatus")) : "-1"]);
+		let currentStatus = Vue.computed(() => {
+			let s = getToken("rawStatus");
+
+			return rawStatus[
+				getToken("osuIsRunning")
+					? ((s < 0 || s === 3 ? 0 : getToken("rawStatus")))
+					: "-1"
+			]
+		});
+		
 		let grade = Vue.computed(() => ["XX", "X", "SS", "S", "A", "B", "C", "D", "F", "?"][getToken('grade')]);
 
 		let gradeStyle = Vue.computed(() => {
@@ -110,7 +119,7 @@ const app = {
 
 		let realAcc = Vue.computed(() => {
 			let realAcc = isMania.value
-				? (300 * getToken("geki") + 100 * getToken("katsu") + 50 * getToken("c50"))
+				? (300 * (getToken("geki") + getToken("c300")) + 200 * getToken("katsu") + 100 * getToken("c100") + 50 * getToken("c50"))
 					/ (300 * (getToken("circles") + getToken("sliders")))
 				: (300 * getToken("c300") + 100 * getToken("c100") + 50 * getToken("c50"))
 					/ (300 * (getToken("circles") + getToken("sliders")));
@@ -183,7 +192,7 @@ const app = {
 				}
 
 				lastAcc = currentAcc;
-			}, 300);
+			}, 150);
 
 			accBarCurrent = document.getElementById("accBarCurrent");
 			accBarReal = document.getElementById("accBarReal");

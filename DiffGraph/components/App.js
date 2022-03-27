@@ -79,7 +79,16 @@ const app = {
 				.replace("00:", "")
 		);
 
-		let currentStatus = Vue.computed(() => rawStatus[getToken("osuIsRunning") ? (getToken("rawStatus") === "-1" ? 0 : getToken("rawStatus")) : "-1"]);
+		let currentStatus = Vue.computed(() => {
+			let s = getToken("rawStatus");
+
+			return rawStatus[
+				getToken("osuIsRunning")
+					? ((s < 0 || s === 3 ? 0 : getToken("rawStatus")))
+					: "-1"
+			]
+		});
+		
 		let mapProgress = Vue.computed(() => getToken('time') / (getToken('totaltime') / 1000));
 
 		return {

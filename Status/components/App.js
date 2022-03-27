@@ -730,9 +730,13 @@ const app = {
 		data.rws = watchTokens([], (values) => Object.assign(data.tokens, values));
 
 		let currentStatus = Vue.computed(() => {
-			let s = rawStatus[getToken("osuIsRunning") ? (getToken("rawStatus") === "-1" ? 0 : getToken("rawStatus")) : "-1"];
-			scene.updateStatus(s);
-			return s;
+			let s = getToken("rawStatus");
+
+			return rawStatus[
+				getToken("osuIsRunning")
+					? ((s < 0 || s === 3 ? 0 : getToken("rawStatus")))
+					: "-1"
+			]
 		});
 
 		return {
