@@ -23,12 +23,222 @@ const rawStatus = {
 	"-2": "Unknown"
 }
 
+/**
+ * Remove all childs in a Node
+ * @param	{Element}	node	Node to empty
+ */
+function emptyNode(node) {
+	while (node.firstChild)
+		node.firstChild.remove();
+}
+
+const HitErrorChart = {
+	BAR_WIDTH: 2,
+	BAR_SPACE: 2,
+	STEPS: [5, 10, 20, 30, 40, 50, 70, 100, 150, 200, 250, 300, 400, 500, 1000, 2000, 5000],
+
+	/** @type {HTMLDivElement} */
+	container: null,
+	
+	od: 6,
+	cWidth: 0,
+
+	/**
+	 * @typedef		BarObject
+	 * @type		{Object}
+	 * @property	{HTMLDivElement}	bar
+	 * @property	{Number}			ms
+	 * @property	{Number}			value
+	 * @property	{Number}			height
+	 * @property	{Number}			from
+	 * @property	{Number}			to
+	 * @property	{Boolean}			updated
+	 */
+	
+	/** @type {BarObject[]} */
+	bars: [],
+	index: 0,
+	max: 0,
+	msDelta: 0,
+	step: 5,
+
+	init(container) {
+		this.container = container;
+		this.updateOD(this.od, true);
+	},
+
+	/**
+	 * Update OD and redraw all bars
+	 * @param {Number}	od
+	 */
+	updateOD(od, force = false) {
+		if (od === this.od && !force)
+			return;
+
+		this.od = od;
+		console.log("new od", od);
+
+		if (!this.container)
+			return;
+
+		this.reset();
+
+		let ms = odToMs(od);
+		let width = ms.hit50 * 2;
+		let bars = Math.floor((this.cWidth - this.BAR_SPACE) / (this.BAR_WIDTH + this.BAR_SPACE)) + 1;
+		this.msDelta = width / bars;
+
+		for (let i = 0; i < bars; i++) {
+			let bar = document.createElement("div");
+			let left = i * (this.BAR_WIDTH + this.BAR_SPACE);
+			let msScale = scaleValue(left, [0, this.cWidth], [-(width / 2), (width / 2)]);
+
+			let color = "blue";
+			if (ms.hit100 < Math.abs(msScale))
+				color = "yellow";
+			else if (ms.hit300 < Math.abs(msScale))
+				color = "green";
+
+			bar.style.width = this.BAR_WIDTH + "px";
+			bar.style.left = left + "px";
+			bar.dataset.ms = msScale;
+			bar.dataset.color = color;
+
+			this.bars.push({
+				bar,
+				ms: msScale,
+				value: 0,
+				height: 0,
+				from: msScale - (this.msDelta / 2),
+				to: msScale + (this.msDelta / 2),
+				updated: false
+			});
+
+			this.container.appendChild(bar);
+		}
+
+		let hintContainer = document.createElement("span");
+		hintContainer.classList.add("hints");
+		let hints = [-120, -90, -60, -30, 0, 30, 60, 90, 120]
+
+		for (let i = 0; i < hints.length; i++) {
+			let hint = hints[i];
+			let hintItem = document.createElement("span");
+			let left = scaleValue(hint, [-(width / 2), (width / 2)], [0, this.cWidth]);
+
+			hintItem.innerText = (hint > 0) ? `+${hint}` : hint;
+			hintItem.style.left = left + "px";
+			hintItem.dataset.level = Math.abs(i - ((hints.length - 1) / 2));
+			hintContainer.appendChild(hintItem);
+		}
+
+		this.container.appendChild(hintContainer);
+		console.log({ width, bars, msDelta: this.msDelta, ms });
+	},
+
+	reset() {
+		emptyNode(this.container);
+		this.bars = Array();
+		this.index = 0;
+		this.max = 0;
+		this.cWidth = this.container.clientWidth;
+		console.log("reset");
+	},
+
+	render() {
+		let curStep = 5;
+		let updateAll = false;
+
+		for (let i = 0; i < this.STEPS.length; i++) {
+			if (this.max < this.STEPS[i]) {
+				curStep = this.STEPS[i] || (10 ** (this.max + "").length);
+				break;
+			}
+		}
+
+		if (curStep !== this.step) {
+			console.log("step", curStep, this.max);
+			updateAll = true;
+		}
+
+		// Update bars
+		for (let bar of this.bars) {
+			if (bar.updated && !updateAll)
+				continue;
+			
+			bar.height = bar.value / curStep;
+			bar.bar.style.height = `${bar.height * 100}%`;
+			bar.updated = true;
+		}
+
+		this.step = curStep;
+	},
+
+	/**
+	 * Update hits
+	 * @param {Number[]} hits 
+	 */
+	updateHits(hits) {
+		if ((hits.length - 1 === this.index) || this.bars.length === 0)
+			return;
+
+		// This indicate an map restart/replay. Reset all hits.
+		if (hits.length - 1 < this.index) {
+			for (let bar of this.bars) {
+				bar.value = 0;
+				bar.height = 0;
+				bar.updated = false;
+			}
+
+			this.max = 0;
+			this.index = 0;
+		}
+
+		let newHits = hits.slice(this.index);
+		this.index = hits.length - 1;
+
+		for (let hit of newHits) {
+			for (let [i, bar] of this.bars.entries()) {
+				if (hit <= bar.ms) {
+					let pbar = this.bars[i - 1];
+
+					if (!pbar) {
+						bar.value += 1;
+						bar.updated = false;
+
+						if (bar.value > this.max)
+							this.max = max;
+
+						break;
+					}
+
+					let bInc = Math.abs(hit - bar.ms) / this.msDelta;
+					let nbInc = Math.abs(hit - pbar.ms) / this.msDelta;
+
+					bar.value += bInc;
+					pbar.value += nbInc;
+					bar.updated = false;
+					pbar.updated = false;
+
+					if (bInc > 2 || nbInc > 2)
+						debugger;
+
+					this.max = Math.max(this.max, bar.value, pbar.value);
+					break;
+				}
+			}
+		}
+
+		this.render();
+	}
+}
+
 function odToMs(od) {
 	return {
 		hit300: (159 - 12 * od) / 2,
 		hit100: (279 - 16 * od) / 2,
-		hit50: (399 - 20 * od) / 2,
-	};
+		hit50: (399 - 20 * od) / 2
+	}
 }
 
 function scaleValue(value, from, to) {
@@ -51,7 +261,15 @@ const app = {
 
 		// either request all tokens upfront by filling their names in array
 		// or request them later using helper getToken method above
-		data.rws = watchTokens([], (values) => Object.assign(data.tokens, values));
+		data.rws = watchTokens(["od", "hitErrors"], (values) => {
+			if (values.od)
+				HitErrorChart.updateOD(values.od);
+			
+			if (values.hitErrors)
+				HitErrorChart.updateHits(values.hitErrors);
+			
+			Object.assign(data.tokens, values);
+		});
 
 		let currentStatus = Vue.computed(() => {
 			let s = getToken("rawStatus");
@@ -83,7 +301,11 @@ const app = {
 		});
 
 		let isPlayingOrWatching = Vue.computed(() =>
-			_IsInStatus(data.rws, data.tokens, [window.overlay.osuStatus.Playing, window.overlay.osuStatus.ResultsScreen, window.overlay.osuStatus.Watching])
+			_IsInStatus(data.rws, data.tokens, [
+				window.overlay.osuStatus.Playing,
+				window.overlay.osuStatus.ResultsScreen,
+				window.overlay.osuStatus.Watching
+			])
 		);
 
 		let isMania = Vue.computed(() => getToken('gameMode') === 'OsuMania');
@@ -198,6 +420,7 @@ const app = {
 			accBarReal = document.getElementById("accBarReal");
 			ppBarCurrent = document.getElementById("ppBarCurrent");
 			ppBarIfRestFC = document.getElementById("ppBarIfRestFC");
+			HitErrorChart.init(document.getElementById("hitErrorChart"));
 		});
 
 		let unstableStyle = Vue.computed(() => {

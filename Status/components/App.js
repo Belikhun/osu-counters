@@ -731,12 +731,12 @@ const app = {
 
 		let currentStatus = Vue.computed(() => {
 			let s = getToken("rawStatus");
+			s = rawStatus[getToken("osuIsRunning")
+				? ((s < 0 || s === 3 ? 0 : getToken("rawStatus")))
+				: "-1"];
 
-			return rawStatus[
-				getToken("osuIsRunning")
-					? ((s < 0 || s === 3 ? 0 : getToken("rawStatus")))
-					: "-1"
-			]
+			scene.updateStatus(s);
+			return s;
 		});
 
 		return {
