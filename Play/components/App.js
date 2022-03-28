@@ -35,10 +35,35 @@ function emptyNode(node) {
 const HitErrorChart = {
 	BAR_WIDTH: 2,
 	BAR_SPACE: 2,
-	STEPS: [5, 10, 20, 30, 40, 50, 70, 100, 150, 200, 250, 300, 400, 500, 1000, 2000, 5000],
 
 	/** @type {HTMLDivElement} */
 	container: null,
+	
+	/** @type {HTMLDivElement} */
+	barContainer: null,
+	
+	/** @type {HTMLDivElement} */
+	hintContainer: null,
+	
+	debug: {
+		/** @type {HTMLSpanElement} */
+		ms: null,
+
+		/** @type {HTMLSpanElement} */
+		delta: null,
+
+		/** @type {HTMLSpanElement} */
+		updates: null,
+
+		/** @type {HTMLSpanElement} */
+		index: null,
+
+		/** @type {HTMLSpanElement} */
+		step: null,
+
+		/** @type {HTMLSpanElement} */
+		max: null
+	},
 	
 	od: 6,
 	cWidth: 0,
@@ -64,6 +89,15 @@ const HitErrorChart = {
 
 	init(container) {
 		this.container = container;
+		this.barContainer = this.container.querySelector(":scope > .bars");
+		this.hintContainer = this.container.querySelector(":scope > .hints");
+		this.debug.ms = this.container.querySelector(":scope > .debugs > .ms");
+		this.debug.delta = this.container.querySelector(":scope > .debugs > .delta");
+		this.debug.updates = this.container.querySelector(":scope > .debugs > .updates");
+		this.debug.index = this.container.querySelector(":scope > .debugs > .index");
+		this.debug.step = this.container.querySelector(":scope > .debugs > .step");
+		this.debug.max = this.container.querySelector(":scope > .debugs > .max");
+
 		this.updateOD(this.od, true);
 	},
 
@@ -87,6 +121,12 @@ const HitErrorChart = {
 		let width = ms.hit50 * 2;
 		let bars = Math.floor((this.cWidth - this.BAR_SPACE) / (this.BAR_WIDTH + this.BAR_SPACE)) + 1;
 		this.msDelta = width / bars;
+		this.debug.delta.innerText = `Δ ` + this.msDelta.toFixed(3) + "ms";
+		this.debug.ms.innerHTML = [
+			`<span class="bl">${ms.hit300.toFixed(1)}</span>`,
+			`<span class="gr">${ms.hit100.toFixed(1)}</span>`,
+			`<span class="ye">${ms.hit50.toFixed(1)}</span>`
+		].join("/");
 
 		for (let i = 0; i < bars; i++) {
 			let bar = document.createElement("div");
@@ -114,11 +154,10 @@ const HitErrorChart = {
 				updated: false
 			});
 
-			this.container.appendChild(bar);
+			this.barContainer.appendChild(bar);
 		}
 
-		let hintContainer = document.createElement("span");
-		hintContainer.classList.add("hints");
+		emptyNode(this.hintContainer);
 		let hints = [-120, -90, -60, -30, 0, 30, 60, 90, 120]
 
 		for (let i = 0; i < hints.length; i++) {
@@ -129,49 +168,47 @@ const HitErrorChart = {
 			hintItem.innerText = (hint > 0) ? `+${hint}` : hint;
 			hintItem.style.left = left + "px";
 			hintItem.dataset.level = Math.abs(i - ((hints.length - 1) / 2));
-			hintContainer.appendChild(hintItem);
+			this.hintContainer.appendChild(hintItem);
 		}
 
-		this.container.appendChild(hintContainer);
 		console.log({ width, bars, msDelta: this.msDelta, ms });
 	},
 
 	reset() {
-		emptyNode(this.container);
+		console.log("reset");
+		emptyNode(this.barContainer);
 		this.bars = Array();
 		this.index = 0;
 		this.max = 0;
 		this.cWidth = this.container.clientWidth;
-		console.log("reset");
 	},
 
 	render() {
-		let curStep = 5;
+		let step = Math.floor((this.max / 10) + 1) * 10;
 		let updateAll = false;
 
-		for (let i = 0; i < this.STEPS.length; i++) {
-			if (this.max < this.STEPS[i]) {
-				curStep = this.STEPS[i] || (10 ** (this.max + "").length);
-				break;
-			}
-		}
-
-		if (curStep !== this.step) {
-			console.log("step", curStep, this.max);
+		if (step !== this.step) {
+			console.log("step", step, this.max);
 			updateAll = true;
 		}
 
 		// Update bars
+		let updated = 0;
 		for (let bar of this.bars) {
 			if (bar.updated && !updateAll)
 				continue;
 			
-			bar.height = bar.value / curStep;
+			bar.height = bar.value / step;
 			bar.bar.style.height = `${bar.height * 100}%`;
 			bar.updated = true;
+			updated++;
 		}
 
-		this.step = curStep;
+		this.debug.updates.innerText = `U ${updated}`;
+		this.debug.index.innerText = `I ${this.index}`;
+		this.debug.step.innerText = `${step} STP`;
+		this.debug.max.innerText = `${this.max.toFixed(3)} MAX`;
+		this.step = step;
 	},
 
 	/**
@@ -219,9 +256,6 @@ const HitErrorChart = {
 					pbar.value += nbInc;
 					bar.updated = false;
 					pbar.updated = false;
-
-					if (bInc > 2 || nbInc > 2)
-						debugger;
 
 					this.max = Math.max(this.max, bar.value, pbar.value);
 					break;
