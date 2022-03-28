@@ -448,7 +448,7 @@ const app = {
 				}
 
 				lastAcc = currentAcc;
-			}, 150);
+			}, 500);
 
 			accBarCurrent = document.getElementById("accBarCurrent");
 			accBarReal = document.getElementById("accBarReal");
