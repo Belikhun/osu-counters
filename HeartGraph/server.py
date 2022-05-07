@@ -31,10 +31,15 @@ class MyServer(Thread):
 
 		def do_GET(self):
 			if (self.path == "/bpm"):
-				bpm = requests.get(f"{HRSERVER}/hr")
-				self.send_response(200)
-				self.end_headers()
-				self.wfile.write(bytes(bpm.text, "utf-8"))
+				try:
+					bpm = requests.get(f"{HRSERVER}/hr")
+					self.send_response(200)
+					self.end_headers()
+					self.wfile.write(bytes(bpm.text, "utf-8"))
+				except Exception:
+					self.send_response(200)
+					self.end_headers()
+					self.wfile.write(bytes("-1", "utf-8"))
 				return
 
 			return SimpleHTTPRequestHandler.do_GET(self)

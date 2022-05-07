@@ -3,6 +3,8 @@ body {
 	font-family: Comfortaa;
 	background-color: black;
 	color: white;
+
+	--lost-color: #fff898;
 }
 
 #bpm {
@@ -20,7 +22,7 @@ body {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	margin-bottom: 16px;
+	margin-bottom: 20px;
 }
 
 #bpm > .top > #heart {
@@ -30,6 +32,19 @@ body {
 	animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
 	animation-fill-mode: forwards;
 	animation-iteration-count: 1;
+}
+
+#bpm.lost > .top > #heart {
+	animation-name: none!important;
+	filter:
+		brightness(0)
+		saturate(100%)
+		invert(87%)
+		sepia(43%)
+		saturate(1930%)
+		hue-rotate(311deg)
+		brightness(141%)
+		contrast(114%);
 }
 
 @keyframes heartbeat {
@@ -64,6 +79,13 @@ body {
 	font-size: 26px;
 }
 
+#bpm.lost > .top > #value {
+    padding: 5px 10px 3px;
+	border: 2px solid var(--lost-color);
+	font-size: 15px;
+	color: var(--lost-color);
+}
+
 #graph {
 	position: relative;
 	flex-grow: 1;
@@ -74,6 +96,52 @@ body {
 
 	margin-right: var(--padd);
 	margin-bottom: var(--padd);
+}
+
+#graph > .lostOverlay {
+	position: absolute;
+	display: block;
+
+	top: -10px;
+	left: 0;
+	bottom: calc(0px - var(--padd));
+	right: calc(0px - var(--padd));
+	background-color: rgba(33, 33, 33, 0.8);
+	visibility: hidden;
+	z-index: 1;
+}
+
+#graph > .lostOverlay::before {
+	content: "";
+	position: absolute;
+	display: block;
+
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+
+	border: 2px solid var(--lost-color);
+
+	background: 
+		linear-gradient(to top left,
+			rgba(0, 0, 0, 0) 0%,
+			rgba(0, 0, 0, 0) calc(50% - 1px),
+			var(--lost-color) calc(50% - 0.9999px),
+			var(--lost-color) calc(50% + 0.9999px),
+			rgba(0, 0, 0, 0) calc(50% + 1px),
+			rgba(0, 0, 0, 0) 100%),
+		linear-gradient(to top right,
+			rgba(0, 0, 0, 0) 0%,
+			rgba(0, 0, 0, 0) calc(50% - 1px),
+			var(--lost-color) calc(50% - 0.9999px),
+			var(--lost-color) calc(50% + 0.9999px),
+			rgba(0, 0, 0, 0) calc(50% + 1px),
+			rgba(0, 0, 0, 0) 100%);
+}
+
+#bpm.lost > #graph > .lostOverlay {
+	visibility: visible;
 }
 
 #graph > .lines {
@@ -175,4 +243,8 @@ body {
 	font-weight: bold;
 	background-color: white;
 	color: black;
+}
+
+#bpm.lost > #graph > .values > .current {
+	display: none;
 }

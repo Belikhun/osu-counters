@@ -35,6 +35,7 @@ function nextFrameAsync() {
  */
 
 const script = {
+	container: $("#bpm"),
 	heartNode: $("#heart"),
 	bpmNode: $("#value"),
 
@@ -53,11 +54,13 @@ const script = {
 	BAR_WIDTH: 6,
 	BAR_SPACE: 2,
 
+	lost: false,
 	min: 80,
 	max: 80,
 	realMax: 80,
 	pos: 0,
-	bpm: 0,
+	bpm: -1,
+	lastBPM: 0,
 
 	/** @type {Bar[]} */
 	bars: [],
@@ -66,7 +69,7 @@ const script = {
 	init() {
 		let width = this.graph.clientWidth;
 		this.barNum = Math.floor((width - this.BAR_SPACE) / (this.BAR_WIDTH + this.BAR_SPACE)) + 1;
-		this.bpm = this.min;
+		this.lastBPM = this.min;
 
 		this.maxNode.innerText = this.max;
 		this.realMaxNode.innerText = this.realMax;
@@ -76,6 +79,14 @@ const script = {
 		this.graph.style.setProperty("--space", `${this.BAR_SPACE}px`);
 		this.beater();
 		this.updater();
+
+		setInterval(() => {
+			if (!this.bpm || this.bpm < 0)
+				return;
+
+			this.bpmNode.innerText = this.bpm;
+			this.push(this.bpm);
+		}, 1000);
 	},
 
 	now() {
@@ -109,7 +120,7 @@ const script = {
 
 		this.updateTimeout = setTimeout(
 			() => this.updater(),
-			(1 - (this.now() - start)) * 1000);
+			(0.5 - (this.now() - start)) * 1000);
 	},
 
 	updateHeight(node, last, current) {
@@ -160,12 +171,12 @@ const script = {
 				= scaleValue(this.realMax, [this.min, this.max], [0, 100]) + "%";
 		}
 
-		this.updateHeight(node, this.bpm, bpm);
+		this.updateHeight(node, this.lastBPM, bpm);
 		node.dataset.pos = this.pos;
 
-		if (bpm === this.bpm)
+		if (bpm === this.lastBPM)
 			node.dataset.color = "gray";
-		else if (bpm > this.bpm)
+		else if (bpm > this.lastBPM)
 			node.dataset.color = "red";
 		else
 			node.dataset.color = "green";
@@ -179,9 +190,9 @@ const script = {
 			[this.min, this.max],
 			[0, 100]) + "%";
 
-		this.bars[this.pos] = { node, value: bpm, last: this.bpm }
+		this.bars[this.pos] = { node, value: bpm, last: this.lastBPM }
 		this.linesNode.appendChild(node);
-		this.bpm = bpm;
+		this.lastBPM = bpm;
 
 		requestAnimationFrame(() => {
 			node.classList.add("show");
@@ -205,11 +216,19 @@ const script = {
 		let value = await (await fetch(`/bpm`)).text();
 		value = parseInt(value);
 
-		if (!value)
-			value = 0;
+		if (!value || value < 0) {
+			this.bpmNode.innerText = "BPM";
+			this.container.classList.add("lost");
+			this.bpm = -1;
+			this.lost = true;
+			return;
+		}
 
-		this.bpmNode.innerText = value;
-		this.push(value);
+		if (this.lost)
+			this.container.classList.remove("lost");
+
+		this.lost = false;
+		this.bpm = value;
 	}
 }
 
