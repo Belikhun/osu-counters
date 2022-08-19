@@ -42,12 +42,15 @@ const script = {
 	graph: $("#graph"),
 	linesNode: $("#graph > .lines"),
 	timesNode: $("#graph > .times"),
-
+	
 	maxNode: $("#graph > .values > .max"),
 	realMaxNode: $("#graph > .values > .realMax"),
 	realMaxLine: $("#graph > .realMaxLine"),
 	minNode: $("#graph > .values > .min"),
 	cValNode: $("#graph > .values > .current"),
+
+	recordMaxNode: $("#recordMax"),
+	recordMinNode: $("#recordMin"),
 
 	updateTimeout: undefined,
 	
@@ -55,9 +58,11 @@ const script = {
 	BAR_SPACE: 2,
 
 	lost: false,
-	min: 80,
-	max: 80,
-	realMax: 80,
+	min: 90,
+	max: 100,
+	realMax: 90,
+	recordMax: 0,
+	recordMin: 9999,
 	pos: 0,
 	bpm: -1,
 	lastBPM: 0,
@@ -74,6 +79,8 @@ const script = {
 		this.maxNode.innerText = this.max;
 		this.realMaxNode.innerText = this.realMax;
 		this.minNode.innerText = this.min;
+		this.recordMaxNode.innerText = `MAX ${this.realMax}`;
+		this.recordMinNode.innerText = `MIN ${this.min}`;
 
 		this.graph.style.setProperty("--width", `${this.BAR_WIDTH}px`);
 		this.graph.style.setProperty("--space", `${this.BAR_SPACE}px`);
@@ -143,8 +150,30 @@ const script = {
 	updateHeights() {
 		console.log("update heights");
 
-		for (let bar of this.bars)
+		for (let bar of this.bars) {
+			// Skip deleted bar.
+			if (!bar)
+				continue;
+
 			this.updateHeight(bar.node, bar.last, bar.value);
+		}
+
+		this.realMaxNode.style.bottom = this.realMaxLine.style.bottom
+			= scaleValue(this.realMax, [this.min, this.max], [0, 100]) + "%";
+	},
+
+	updateMin() {
+		this.min = Math.min(...this.bars.filter(i => i.last > 0).map(i => i.last));
+		console.log("update min", this.min);
+		this.minNode.innerText = this.min;
+	},
+
+	updateMax() {
+		this.realMax = Math.max(...this.bars.filter(i => i.value > 0).map(i => i.value));
+		console.log("update max", this.realMax);
+		this.max = this.realMax + 10;
+		this.realMaxNode.innerText = this.realMax;
+		this.maxNode.innerText = this.max;
 	},
 
 	push(bpm) {
@@ -155,6 +184,11 @@ const script = {
 			this.min = bpm;
 			this.minNode.innerText = this.min;
 			reRender = true;
+		}
+
+		if (bpm < this.recordMin) {
+			this.recordMin = bpm;
+			this.recordMinNode.innerText = `MIN ${this.recordMin}`;
 		}
 
 		if (bpm > this.max) {
@@ -169,6 +203,11 @@ const script = {
 			this.realMaxNode.innerText = this.realMax;
 			this.realMaxNode.style.bottom = this.realMaxLine.style.bottom
 				= scaleValue(this.realMax, [this.min, this.max], [0, 100]) + "%";
+		}
+
+		if (bpm > this.recordMax) {
+			this.recordMax = bpm;
+			this.recordMaxNode.innerText = `MAX ${this.recordMax}`;
 		}
 
 		this.updateHeight(node, this.lastBPM, bpm);
@@ -205,8 +244,24 @@ const script = {
 					this.pos = 0;
 
 				if (this.bars[this.pos]) {
+					let last = this.bars[this.pos].last;
+					let reupdate = false;
+
 					this.linesNode.removeChild(this.bars[this.pos].node);
 					delete this.bars[this.pos];
+
+					if (last >= this.realMax) {
+						reupdate = true;
+						this.updateMax();
+					}
+
+					if (last <= this.min) {
+						reupdate = true;
+						this.updateMin();
+					}
+
+					if (reupdate)
+						this.updateHeights();
 				}
 			}, 200);
 		});

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 from lib import ehook
 from lib.log import log
 
@@ -13,7 +14,7 @@ log("OKAY", "Imported: threading.Thread")
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 log("OKAY", "Imported: http.server")
 
-HRSERVER = "http://192.168.1.141:12345"
+HRSERVER = f"http://{sys.argv[1]}:12345"
 PORT = 21727
 
 class MyServer(Thread):

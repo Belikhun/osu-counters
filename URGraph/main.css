@@ -1,0 +1,409 @@
+body {
+    margin: unset;
+    font-family: comfortaa;
+    color: white;
+    background-color: black;
+    user-select: none;
+}
+
+:root {
+    /* FROM OSC PACKAGE */
+	--osc-color-whitesmoke:		#f6f6f6;
+	--osc-color-pink:			#ff66aa;
+	--osc-color-green:			#88b400;
+	--osc-color-blue:			#44aadd;
+	--osc-color-yellow:			#f6c21c;
+	--osc-color-orange:			#ffa502;
+	--osc-color-red:			#dd2d44;
+	--osc-color-brown:			#3f313d;
+	--osc-color-gray:			#485e74;
+	--osc-color-dark:			#1E1E1E;
+	--osc-color-purple:			#593790;
+	--osc-color-darkGreen:		#0c4207;
+	--osc-color-darkBlue:		#053242;
+	--osc-color-darkYellow:		#444304;
+	--osc-color-darkRed:		#440505;
+	--osc-color-navyBlue:		#333D79;
+}
+
+#app {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    
+    width: 100vw;
+    height: 100vh;
+}
+
+#app > .item {
+    position: relative;
+    display: flex;
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-direction: column;
+    align-items: baseline;
+
+    margin: 0;
+    padding: 6px 14px;
+    box-sizing: border-box;
+    border-radius: 7px;
+
+    background-color: #212121;
+    transition:
+        background-color 0.3s ease-out,
+        transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+        opacity 0.5s ease;
+}
+
+#app > .item:not(.Playing) {
+    transform: translateY(60px);
+    opacity: 0;
+}
+
+#app > .item > span {
+    position: relative;
+    display: block;
+}
+
+#app > .item.whitesmoke {
+    background-color: rgb(238, 238, 238);
+}
+
+#app > .item.whitesmoke > .value {
+    color: rgb(28, 28, 28);
+}
+
+#app > .item.blue {
+    background-color: rgb(26, 132, 185);
+}
+
+#app > .item.green {
+    background-color: rgb(113, 151, 0);
+}
+
+#app > .item.yellow {
+    background-color: rgb(218, 136, 13)
+}
+
+#app > .item.red {
+    background-color: rgb(202, 21, 45);
+}
+
+#app > .item > .label {
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+#app > .item > .value {
+    width: 100%;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+#app > .item > .progBar {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 10px;
+
+    background-color: rgb(94, 94, 94);
+    overflow: hidden;
+}
+
+#app > .item > .progBar.hide:not(.noHide) {
+    display: none;
+}
+
+#app > .item > .progBar.hide {
+    margin-bottom: 10px;
+}
+
+#app > .item > .progBar > .bar {
+    position: absolute;
+    display: block;
+    left: 0;
+    height: 100%;
+
+    background-color: white;
+    transition: width 0.1s ease-in-out;
+}
+
+#app > .item > .progBar > .bar.green {
+    background-color: rgb(65, 240, 109);
+}
+
+#app > .item > .progBar > .bar.orange {
+    background-color: rgb(243, 152, 66);
+}
+
+#app > .item > .progBar > .bar.blue {
+    background-color: rgb(131, 216, 255);
+}
+
+#app > .item > .progBar > .bar.purple {
+    background-color: rgb(219, 146, 255);
+}
+
+#app > .item > .progBar > .bar.yellow {
+    background-color: rgb(255, 238, 110);
+}
+
+#app > .item > .deltaBar {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 6px;
+    margin-bottom: 36px;
+
+    background-color: rgb(94, 94, 94);
+}
+
+#app > .item > .deltaBar.hide {
+    display: none;
+}
+
+#app > .item > .deltaBar::before,
+#app > .item > .deltaBar::after,
+#app > .item > .deltaBar > .left,
+#app > .item > .deltaBar > .right {
+    position: absolute;
+    display: block;
+    right: 50%;
+    height: 100%;
+    background-color: rgb(255, 63, 102);
+}
+
+#app > .item > .deltaBar::before,
+#app > .item > .deltaBar::after {
+    content: "";
+    width: 50%;
+}
+
+#app > .item > .deltaBar::after,
+#app > .item > .deltaBar > .right {
+    right: unset;
+    left: 50%;
+
+    background-color: rgb(151, 255, 91);
+}
+
+#app > .item > .deltaBar > .left,
+#app > .item > .deltaBar > .right {
+    height: 300%;
+}
+
+#app > .item > .deltaBar > .label {
+    position: absolute;
+    top: calc(100% + 14px);
+    
+    font-size: 12px;
+    text-align: center;
+    color: rgb(148, 148, 148);
+}
+
+#app > .item > .deltaBar > .label.c {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#app > .item > .deltaBar > .label.l {
+    left: 0;
+    color: rgb(204, 204, 204);
+}
+
+#app > .item > .deltaBar > .label.r {
+    right: 0;
+    color: rgb(238, 238, 238);
+}
+
+#app > .item.big > .value {
+    font-size: 44px;
+}
+
+#app > .item.center > .value {
+    text-align: center;
+}
+
+#app > .item > .right {
+    position: absolute;
+    right: 14px;
+    bottom: 6px;
+}
+
+#app .space {
+    position: relative;
+    display: block;
+
+    width: 100%;
+    height: 5px;
+}
+
+#app .space.large {
+    height: 15px;
+}
+
+/** Custom Item Style **/
+
+#app > .item.grade > .value {
+    filter: brightness(1.4);
+    transition: color 0.3s ease-out;
+}
+
+#app > .item.grade > .value.whitesmoke {
+    color: var(--osc-color-whitesmoke);
+}
+
+#app > .item.grade > .value.yellow {
+    color: var(--osc-color-yellow);
+}
+
+#app > .item.grade > .value.green {
+    color: var(--osc-color-green);
+}
+
+#app > .item.grade > .value.blue {
+    color: var(--osc-color-blue);
+}
+
+#app > .item.grade > .value.red {
+    color: var(--osc-color-red);
+}
+
+#app > .item.grade > .value.gray {
+    color: rgb(56, 56, 56);
+}
+
+/** ERROR CHART */
+
+#hitErrorChart {
+    position: relative;
+    display: block;
+    height: 70px;
+    width: 100%;
+
+    margin-bottom: 20px;
+}
+
+#hitErrorChart > .bars {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#hitErrorChart > .bars > div {
+    position: absolute;
+    bottom: 0;
+    min-height: 1px;
+    background-color: rgb(255, 255, 255);
+    transition: height 0.3s ease-out;
+}
+
+#hitErrorChart > .bars > div[data-color="blue"] {
+    background-color: rgb(174, 223, 255);
+}
+
+#hitErrorChart > .bars > div[data-color="green"] {
+    background-color: rgb(129, 255, 129);
+}
+
+#hitErrorChart > .bars > div[data-color="yellow"] {
+    background-color: rgb(255, 244, 144);
+}
+
+#hitErrorChart > .hints {
+    position: absolute;
+    width: 100%;
+    bottom: -5px;
+}
+
+#hitErrorChart > .hints > span {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    font-size: 12px;
+    z-index: 5;
+}
+
+#hitErrorChart > .hints > span[data-level="1"] {
+    opacity: 0.8;
+    z-index: 4;
+}
+
+#hitErrorChart > .hints > span[data-level="2"] {
+    opacity: 0.6;
+    z-index: 3;
+}
+
+#hitErrorChart > .hints > span[data-level="3"] {
+    opacity: 0.4;
+    z-index: 2;
+}
+
+#hitErrorChart > .hints > span[data-level="4"] {
+    opacity: 0.2;
+    z-index: 1;
+}
+
+#hitErrorChart > .debugs {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#hitErrorChart > .debugs > span {
+    position: absolute;
+}
+
+#hitErrorChart > .debugs > .ms,
+#hitErrorChart > .debugs > .delta,
+#hitErrorChart > .debugs > .updates,
+#hitErrorChart > .debugs > .index {
+    left: 0;
+    top: -2px;
+}
+
+#hitErrorChart > .debugs > .ms > span {
+    margin: 0 2px;
+}
+
+#hitErrorChart > .debugs > .ms > .bl {
+    margin-left: 0;
+    color: rgb(174, 223, 255);
+}
+
+#hitErrorChart > .debugs > .ms > .gr {
+    color: rgb(129, 255, 129);
+}
+
+#hitErrorChart > .debugs > .ms > .ye {
+    color: rgb(255, 244, 144);
+}
+
+#hitErrorChart > .debugs > .delta {
+    top: 12px;
+}
+
+#hitErrorChart > .debugs > .updates {
+    top: 26px;
+}
+
+#hitErrorChart > .debugs > .index {
+    top: 40px;
+}
+
+#hitErrorChart > .debugs > .step,
+#hitErrorChart > .debugs > .max {
+    right: 0;
+    top: 4px;
+}
+
+#hitErrorChart > .debugs > .max {
+    top: 18px;
+}
