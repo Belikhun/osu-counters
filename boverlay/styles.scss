@@ -288,7 +288,8 @@ body {
 	position: relative;
 	display: block;
 	width: 100%;
-	height: 8rem;
+	height: 6rem;
+	padding-top: 1.5rem;
 	padding-bottom: 1.5rem;
 
 	> {
@@ -301,7 +302,7 @@ body {
 			> div {
 				position: absolute;
 				bottom: 0;
-				min-height: 1px;
+				min-height: 0.1rem;
 				background-color: rgb(255, 255, 255);
 				transition: height 0.3s ease-out;
 
@@ -319,6 +320,101 @@ body {
 			}
 		}
 
+		.indicators {
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+
+			> .center {
+				position: absolute;
+				width: 0.1rem;
+				top: 1rem;
+    			bottom: 1.5rem;
+				background-color: rgba(192, 192, 192, 0.3);
+				transform: translateX(-50%);
+			}
+
+			> .avg {
+				position: absolute;
+				width: 0;
+				top: 0;
+    			bottom: 1.5rem;
+				transform: translateX(-50%);
+				transition: left 0.15s cubic-bezier(0.65, 0, 0.35, 1);
+				opacity: 1;
+
+				> svg {
+					position: absolute;
+					left: 0;
+					transform: translateX(-50%) scale(0.75);
+					fill: rgba(255, 255, 255, 0.8);
+				}
+
+				&::after {
+					content: "";
+					position: absolute;
+					display: block;
+
+					top: 1rem;
+					width: 0.1rem;
+					bottom: 0;
+					background-color: rgba(255, 255, 255, 0.8);
+					transform: translateX(-50%);
+				}
+
+				&.hide {
+					transition: opacity 1s ease;
+					opacity: 0;
+				}
+			}
+		}
+
+		.hits {
+			position: absolute;
+			top: 1.25rem;
+			height: 0.75rem;
+			width: 100%;
+
+			> span {
+				position: absolute;
+				display: block;
+
+				top: 0;
+				width: 0.2rem;
+				height: 100%;
+				transform: translateX(-50%);
+				background-color: rgb(255, 255, 255);
+				border-radius: 0.1rem;
+
+				opacity: 1;
+				transition: all 1s cubic-bezier(0.33, 1, 0.68, 1);
+
+				&[data-color="blue"] {
+					background-color: rgb(202, 234, 255);
+				}
+
+				&[data-color="green"] {
+					background-color: rgb(173, 255, 173);
+				}
+
+				&[data-color="yellow"] {
+					background-color: rgb(255, 247, 176);
+				}
+
+				&.decay {
+					opacity: 0.5;
+				}
+
+				&.hide {
+					transition: all 0.5s ease;
+					width: 0.5rem;
+					opacity: 0;
+				}
+			}
+		}
+
 		.hints {
 			position: absolute;
 			width: 100%;
@@ -328,7 +424,7 @@ body {
 				position: absolute;
 				top: 0;
 				transform: translateX(-50%);
-				font-size: 12px;
+				font-size: 0.75rem;
 				z-index: 5;
 
 				&[data-level="1"] {
@@ -363,22 +459,18 @@ body {
 			font-size: 0.75rem;
 			color: rgba(255, 255, 255, 0.6);
 
-			> {
-				span {
-					position: absolute;
-				}
+			> .left {
+				position: absolute;
+				display: flex;
+				flex-direction: column;
+				gap: .125rem;
 
-				.ms,
-				.delta,
-				.updates,
-				.index {
-					left: 0;
-					top: -2px;
-				}
+				top: 0;
+				left: 0;
 
-				.ms> {
+				> .ms {
 					span {
-						margin: 0 2px;
+						margin: 0 0.25rem;
 					}
 
 					.bl {
@@ -394,29 +486,17 @@ body {
 						color: rgb(255, 244, 144);
 					}
 				}
+			}
 
-				.delta {
-					top: 12px;
-				}
+			> .right {
+				position: absolute;
+				display: flex;
+				flex-direction: column;
+				gap: .125rem;
 
-				.updates {
-					top: 26px;
-				}
-
-				.index {
-					top: 40px;
-				}
-
-				.step {
-					right: 0;
-					top: 4px;
-				}
-
-				.max {
-					right: 0;
-					top: 4px;
-					top: 18px;
-				}
+				top: 0;
+				right: 0;
+				text-align: right;
 			}
 		}
 	}

@@ -120,6 +120,17 @@ const HitErrorChart = {
 	/** @type {HTMLDivElement} */
 	barContainer: null,
 	
+	indicators: {
+		/** @type {HTMLDivElement} */
+		center: null,
+
+		/** @type {HTMLDivElement} */
+		avg: null
+	},
+	
+	/** @type {HTMLDivElement} */
+	hitContainer: null,
+	
 	/** @type {HTMLDivElement} */
 	hintContainer: null,
 	
@@ -129,6 +140,9 @@ const HitErrorChart = {
 
 		/** @type {HTMLSpanElement} */
 		delta: null,
+
+		/** @type {HTMLSpanElement} */
+		deviance: null,
 
 		/** @type {HTMLSpanElement} */
 		updates: null,
@@ -144,7 +158,21 @@ const HitErrorChart = {
 	},
 	
 	od: 6,
+	hitMs: { hit300: 0, hit100: 0, hit50: 0 },
 	cWidth: 0,
+	vWidth: 0,
+	repeatedZero: 0,
+	zeroHitCount: 0,
+	nonZeroHitCount: 0,
+
+	/** @type {SmoothValue} */
+	urValue: undefined,
+
+	/** @type {MovingAverage} */
+	hitAvg: undefined,
+
+	/** @type {StandardDeviationCalculator} */
+	unstableRate: undefined,
 
 	/**
 	 * @typedef		BarObject
@@ -164,24 +192,38 @@ const HitErrorChart = {
 	max: 0,
 	msDelta: 0,
 	step: 5,
+	angBarHideTimeout: null,
 
 	init(container) {
 		this.container = container;
 		this.barContainer = this.container.querySelector(":scope > .bars");
+		this.indicators.center = this.container.querySelector(":scope > .indicators > .center");
+		this.indicators.avg = this.container.querySelector(":scope > .indicators > .avg");
+		this.hitContainer = this.container.querySelector(":scope > .hits");
 		this.hintContainer = this.container.querySelector(":scope > .hints");
-		this.debug.ms = this.container.querySelector(":scope > .debugs > .ms");
-		this.debug.delta = this.container.querySelector(":scope > .debugs > .delta");
-		this.debug.updates = this.container.querySelector(":scope > .debugs > .updates");
-		this.debug.index = this.container.querySelector(":scope > .debugs > .index");
-		this.debug.step = this.container.querySelector(":scope > .debugs > .step");
-		this.debug.max = this.container.querySelector(":scope > .debugs > .max");
+		this.debug.ms = this.container.querySelector(":scope > .debugs > .left > .ms");
+		this.debug.delta = this.container.querySelector(":scope > .debugs > .left > .delta");
+		this.debug.deviance = this.container.querySelector(":scope > .debugs > .left > .deviance");
+		this.debug.updates = this.container.querySelector(":scope > .debugs > .left > .updates");
+		this.debug.index = this.container.querySelector(":scope > .debugs > .left > .index");
+		this.debug.step = this.container.querySelector(":scope > .debugs > .right > .step");
+		this.debug.max = this.container.querySelector(":scope > .debugs > .right > .max");
+
+		this.hitAvg = new MovingAverage(15);
+		this.unstableRate = new StandardDeviationCalculator();
+		this.urValue = new SmoothValue({
+			classes: ["value"],
+			duration: 0.2,
+			decimal: 2
+		});
+
+		const urContainer = document.getElementById("unstableRate");
+		urContainer.replaceChild(this.urValue.container, document.querySelector(`#unstableRate > .value`));
 
 		this.updateOD(this.od, true);
 
-		const urValue = document.querySelector(`#unstableRate > .value`);
-
 		app.subscribe("play.unstableRate", (value) => {
-			urValue.innerText = value.toFixed(2);
+			// urValue.innerText = value.toFixed(2);
 		});
 
 		app.subscribe("beatmap.stats.od.converted", (value) => {
@@ -208,29 +250,31 @@ const HitErrorChart = {
 		if (!this.container)
 			return;
 
-		this.reset();
+		this.hardReset();
 
-		let ms = odToMs(od);
-		let width = ms.hit50 * 2;
-		let bars = Math.floor((this.cWidth - this.BAR_SPACE) / (this.BAR_WIDTH + this.BAR_SPACE)) + 1;
-		this.msDelta = width / bars;
+		this.hitMs = odToMs(od);
+		this.vWidth = this.hitMs.hit50 * 2;
+		const bars = Math.floor((this.cWidth - this.BAR_SPACE) / (this.BAR_WIDTH + this.BAR_SPACE)) + 1;
+
+		this.msDelta = this.vWidth / bars;
 		this.debug.delta.innerText = `Δ ` + this.msDelta.toFixed(3) + "ms";
 		this.debug.ms.innerHTML = [
-			`<span class="bl">${ms.hit300.toFixed(1)}</span>`,
-			`<span class="gr">${ms.hit100.toFixed(1)}</span>`,
-			`<span class="ye">${ms.hit50.toFixed(1)}</span>`
+			`<span class="bl">${this.hitMs.hit300.toFixed(1)}</span>`,
+			`<span class="gr">${this.hitMs.hit100.toFixed(1)}</span>`,
+			`<span class="ye">${this.hitMs.hit50.toFixed(1)}</span>`
 		].join("/");
 
 		for (let i = 0; i < bars; i++) {
-			let bar = document.createElement("div");
-			let left = i * (this.BAR_WIDTH + this.BAR_SPACE);
-			let msScale = scaleValue(left, [0, this.cWidth], [-(width / 2), (width / 2)]);
+			const bar = document.createElement("div");
+			const left = i * (this.BAR_WIDTH + this.BAR_SPACE);
+			const msScale = scaleValue(left, [0, this.cWidth], [-(this.vWidth / 2), (this.vWidth / 2)]);
 
 			let color = "blue";
-			if (ms.hit100 < Math.abs(msScale))
+			if (this.hitMs.hit100 < Math.abs(msScale)) {
 				color = "yellow";
-			else if (ms.hit300 < Math.abs(msScale))
+			} else if (this.hitMs.hit300 < Math.abs(msScale)) {
 				color = "green";
+			}
 
 			bar.style.width = this.BAR_WIDTH + "px";
 			bar.style.left = left + "px";
@@ -254,26 +298,47 @@ const HitErrorChart = {
 		let hints = [-120, -90, -60, -30, 0, 30, 60, 90, 120]
 
 		for (let i = 0; i < hints.length; i++) {
-			let hint = hints[i];
-			let hintItem = document.createElement("span");
-			let left = scaleValue(hint, [-(width / 2), (width / 2)], [0, this.cWidth]);
+			const hint = hints[i];
+			const hintItem = document.createElement("span");
+			const left = scaleValue(hint, [-(this.vWidth / 2), (this.vWidth / 2)], [0, this.cWidth]);
 
 			hintItem.innerText = (hint > 0) ? `+${hint}` : hint;
 			hintItem.style.left = left + "px";
 			hintItem.dataset.level = Math.abs(i - ((hints.length - 1) / 2));
 			this.hintContainer.appendChild(hintItem);
+
+			if (hint == 0)
+				this.indicators.center.style.left = left + "px";
 		}
 
-		console.log({ width, bars, msDelta: this.msDelta, ms });
+		console.log({ width: this.vWidth, bars, msDelta: this.msDelta, ms: this.hitMs });
 	},
 
-	reset() {
-		console.log("reset");
+	hardReset() {
 		emptyNode(this.barContainer);
 		this.bars = Array();
 		this.index = 0;
 		this.max = 0;
 		this.cWidth = this.container.clientWidth;
+		this.reset();
+	},
+
+	reset(hard = false) {
+		for (let bar of this.bars) {
+			bar.value = 0;
+			bar.height = 0;
+			bar.updated = false;
+		}
+
+		this.max = 0;
+		this.index = 0;
+		this.repeatedZero = 0;
+		this.zeroHitCount = 0;
+		this.nonZeroHitCount = 0;
+		this.hitAvg.clear();
+		this.unstableRate.clear();
+		this.urValue.set(0);
+		this.updateAverage();
 	},
 
 	render() {
@@ -301,7 +366,46 @@ const HitErrorChart = {
 		this.debug.index.innerText = `I ${this.index}`;
 		this.debug.step.innerText = `${step} STP`;
 		this.debug.max.innerText = `${this.max.toFixed(3)} MAX`;
+
+		this.urValue.set(this.unstableRate.getStandardDeviation() * 10);
+		this.updateAverage();
 		this.step = step;
+	},
+
+	updateAverage() {
+		const avg = this.hitAvg.getAverage();
+		let avgLeft = scaleValue(avg, [-(this.vWidth / 2), (this.vWidth / 2)], [0, this.cWidth]);
+		this.indicators.avg.style.left = avgLeft + "px";
+		this.debug.deviance.innerText = `δ ` + avg.toFixed(3) + "ms";
+		this.indicators.avg.classList.remove("hide");
+
+		clearTimeout(this.angBarHideTimeout);
+		this.angBarHideTimeout = setTimeout(() => {
+			this.indicators.avg.classList.add("hide");
+		}, 3000);
+	},
+
+	async visualizeHit(hit) {
+		const hitNode = document.createElement("span");
+		let left = scaleValue(hit, [-(this.vWidth / 2), (this.vWidth / 2)], [0, this.cWidth]);
+		hitNode.style.left = left + "px";
+
+		let color = "blue";
+		if (this.hitMs.hit100 < Math.abs(hit)) {
+			color = "yellow";
+		} else if (this.hitMs.hit300 < Math.abs(hit)) {
+			color = "green";
+		}
+
+		hitNode.dataset.color = color;
+		this.hitContainer.appendChild(hitNode);
+
+		await delayAsync(100);
+		hitNode.classList.add("decay");
+		await delayAsync(1000);
+		hitNode.classList.add("hide");
+		await delayAsync(500);
+		this.hitContainer.removeChild(hitNode);
 	},
 
 	/**
@@ -314,21 +418,38 @@ const HitErrorChart = {
 			return;
 
 		// This indicate an map restart/replay. Reset all hits.
-		if (hits.length - 1 < this.index) {
-			for (let bar of this.bars) {
-				bar.value = 0;
-				bar.height = 0;
-				bar.updated = false;
-			}
-
-			this.max = 0;
-			this.index = 0;
-		}
+		if (hits.length - 1 < this.index)
+			this.reset();
 
 		let newHits = hits.slice(this.index);
 		this.index = hits.length - 1;
+		console.log(newHits);
 
 		for (let hit of newHits) {
+			if (hit == 0) {
+				// Too many zero hits, might be slider end.
+				// TODO: pre-calculate amount of slider ends so we know how many we need to reject.
+				if (this.nonZeroHitCount > 0 && (this.zeroHitCount / this.nonZeroHitCount) > 0.02)
+					continue;
+
+				this.zeroHitCount += 1;
+				this.repeatedZero += 1;
+
+				if (this.repeatedZero > 1) {
+					console.log("zero combo", this.repeatedZero);
+					continue;
+				}
+			} else {
+				this.nonZeroHitCount += 1;
+				this.repeatedZero = 0;
+			}
+
+			this.hitAvg.addNumber(hit);
+			this.unstableRate.addNumber(hit);
+
+			if (newHits.length < 10)
+				this.visualizeHit(hit);
+
 			for (let [i, bar] of this.bars.entries()) {
 				if (hit <= bar.ms) {
 					let pbar = this.bars[i - 1];
@@ -343,8 +464,8 @@ const HitErrorChart = {
 						break;
 					}
 
-					let bInc = Math.abs(hit - bar.ms) / this.msDelta;
-					let nbInc = Math.abs(hit - pbar.ms) / this.msDelta;
+					let bInc = (1 - (Math.abs(hit - bar.ms) / this.msDelta));
+					let nbInc = (1 - (Math.abs(hit - pbar.ms) / this.msDelta));
 
 					bar.value += bInc;
 					pbar.value += nbInc;
