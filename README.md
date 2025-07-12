@@ -1,15 +1,5 @@
 # osu-counters
 
-To install dependencies:
+My self-made collection of tosu's counters, formerly StreamCompanion overlays (see `streamcompanion` branch).
 
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.1.43. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+https://github.com/user-attachments/assets/f59b3050-526d-4d3b-94d9-e28fde50cefd
