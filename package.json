@@ -1,0 +1,16 @@
+{
+	"name": "osu-counters",
+	"scripts": {
+		"scss:watch": "bun run scripts/watch-sass.ts"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"chokidar": "^4.0.3",
+		"sass": "^1.89.2"
+	}
+}

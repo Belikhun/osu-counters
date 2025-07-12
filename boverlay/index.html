@@ -4,10 +4,34 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>BOverlay</title>
+
+		<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&display=swap" rel="stylesheet" />
+		<link href="styles.css" rel="stylesheet" />
 	</head>
 
 	<body>
+		<div id="app">
+			<div id="unstableRate" class="item">
+				<span class="label">độ bất ổn định</span>
+				<span class="value">00.00</span>
+
+				<div id="hitErrorChart">
+					<div class="bars"></div>
+					<div class="hints"></div>
+					<div class="debugs">
+						<span class="ms">---</span>
+						<span class="delta">Δ 0</span>
+						<span class="updates">U 0</span>
+						<span class="index">I 0</span>
+						<span class="step">0 STP</span>
+						<span class="max">0 MAX</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<script src="socket.js"></script>
+		<script src="libs.js"></script>
 		<script src="app.js"></script>
 	</body>
 </html>
