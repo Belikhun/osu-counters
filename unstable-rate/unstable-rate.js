@@ -178,7 +178,7 @@ const UnstableRatePanel = {
 
 		this.hardReset();
 
-		this.hitMs = odToMs(od);
+		this.hitMs = odToMs(od, app.get("beatmap.mode.name"));
 		this.vWidth = this.hitMs.hit50 * 2;
 		const bars = Math.floor((this.cWidth - this.BAR_SPACE) / (this.BAR_WIDTH + this.BAR_SPACE)) + 1;
 
