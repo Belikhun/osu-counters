@@ -1,116 +1,5 @@
 
-function odToMs(od) {
-	return {
-		hit300: (159 - 12 * od) / 2,
-		hit100: (279 - 16 * od) / 2,
-		hit50: (399 - 20 * od) / 2
-	}
-}
-
-const app = {
-	/** @type {WebSocketManager} */
-	client: undefined,
-
-	data: {
-		common: {
-			current: {},
-			previous: {}
-		},
-
-		precise: {
-			current: {},
-			previous: {}
-		},
-	},
-
-	/** @type {{ [channel: string]: { key: string, handler: (value: any) => void }[] }} */
-	handlers: {
-		common: [],
-		precise: []
-	},
-
-	init() {
-		this.client = new WebSocketManager(window.location.host);
-
-		HitErrorChart.init(document.getElementById("hitErrorChart"));
-
-		this.client.api_v2((data) => {
-			this.dispatch(data, "common");
-		});
-
-		this.client.api_v2_precise((data) => {
-			this.dispatch(data, "precise");
-		});
-	},
-
-	/**
-	 * Get value by key
-	 * 
-	 * @param	{string}	key
-	 * @param	{any}		[defaultValue]
-	 */
-	get(key, defaultValue = null, store = this.data.common.current) {
-		const path = key.split(".");
-		let value = store;
-
-		for (const token of path) {
-			if (typeof value[token] == "undefined")
-				return defaultValue;
-
-			if ([value[token]] && typeof [value[token]] != "object")
-				throw new Error(`Key ${key} is invalid`);
-
-			value = value[token];
-		}
-
-		return value;
-	},
-
-	/**
-	 * Subscribe for value change of the specified value key
-	 * 
-	 * @param	{string}				key
-	 * @param	{(value: any) => void}	handler
-	 * @param	{"common" | "precise"}	channel
-	 */
-	subscribe(key, handler, channel = "common") {
-		this.handlers[channel].push({
-			key,
-			handler
-		});
-
-		return this;
-	},
-
-	isChanged(value1, value2) {
-		// Can't efficiently compare objects yet.
-		if (value1 && typeof value1 == "object")
-			return true;
-
-		return value1 != value2;
-	},
-
-	dispatch(data, channel = "common") {
-		this.data[channel].previous = this.data[channel].current;
-		this.data[channel].current = data;
-
-		for (const { key, handler } of this.handlers[channel]) {
-			let current = this.get(key, null, this.data[channel].current);
-			let previous = this.get(key, null, this.data[channel].previous);
-
-			if (!this.isChanged(current, previous))
-				continue;
-
-			try {
-				handler(current);
-			} catch (e) {
-				console.warn(`Error occured while handing`)
-			}
-		}
-	}
-}
-
-const HitErrorChart = {
+const UnstableRatePanel = {
 	BAR_WIDTH: 2,
 	BAR_SPACE: 2,
 
@@ -193,22 +82,9 @@ const HitErrorChart = {
 	msDelta: 0,
 	step: 5,
 	angBarHideTimeout: null,
+	liveUrAvailable: false,
 
-	init(container) {
-		this.container = container;
-		this.barContainer = this.container.querySelector(":scope > .bars");
-		this.indicators.center = this.container.querySelector(":scope > .indicators > .center");
-		this.indicators.avg = this.container.querySelector(":scope > .indicators > .avg");
-		this.hitContainer = this.container.querySelector(":scope > .hits");
-		this.hintContainer = this.container.querySelector(":scope > .hints");
-		this.debug.ms = this.container.querySelector(":scope > .debugs > .left > .ms");
-		this.debug.delta = this.container.querySelector(":scope > .debugs > .left > .delta");
-		this.debug.deviance = this.container.querySelector(":scope > .debugs > .left > .deviance");
-		this.debug.updates = this.container.querySelector(":scope > .debugs > .left > .updates");
-		this.debug.index = this.container.querySelector(":scope > .debugs > .left > .index");
-		this.debug.step = this.container.querySelector(":scope > .debugs > .right > .step");
-		this.debug.max = this.container.querySelector(":scope > .debugs > .right > .max");
-
+	init() {
 		this.hitAvg = new MovingAverage(15);
 		this.unstableRate = new StandardDeviationCalculator();
 		this.urValue = new SmoothValue({
@@ -217,17 +93,63 @@ const HitErrorChart = {
 			decimal: 2
 		});
 
-		const urContainer = document.getElementById("unstableRate");
-		urContainer.replaceChild(this.urValue.container, document.querySelector(`#unstableRate > .value`));
+		this.container = makeTree("div", "unstable-rate-panel", {
+			labelNode: { tag: "span", class: "label", text: "độ bất ổn định" },
+			valueNode: this.urValue,
+
+			chart: { tag: "div", class: "hit-error-chart", child: {
+				bars: { tag: "div", class: "bars" },
+				indicators: { tag: "div", class: "indicators", child: {
+					center: { tag: "div", class: "center" },
+					avg: { tag: "div", class: "avg", html: `
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+							<path stroke="none" d="M9.7321 13.7942A2 2 0 0 1 6.2679 13.7942L0.7321 4.2058A2 2 0 0 1 2.4641 1.2058L13.5359 1.2058A2 2 0 0 1 15.2679 4.2058"></path>
+						</svg>` }
+				}},
+
+				hits: { tag: "div", class: "hits" },
+				hints: { tag: "div", class: "hints" },
+
+				debugs: { tag: "div", class: "debugs", child: {
+					left: { tag: "div", class: "left", child: {
+						ms: { tag: "span", class: "ms", text: "---" },
+						delta: { tag: "span", class: "delta", text: "Δ 0" },
+						deviance: { tag: "span", class: "deviance", text: "δ 0" },
+						updates: { tag: "span", class: "updates", text: "U 0" },
+						index: { tag: "span", class: "index", text: "I 0" }
+					}},
+
+					right: { tag: "div", class: "right", child: {
+						step: { tag: "span", class: "step", text: "0 STP" },
+						max: { tag: "span", class: "max", text: "0 MAX" }
+					}}
+				}}
+			}}
+		});
+
+		this.barContainer = this.container.chart.bars;
+		this.indicators = this.container.chart.indicators;
+		this.hitContainer = this.container.chart.hits;
+		this.hintContainer = this.container.chart.hints;
+		this.debug.ms = this.container.chart.debugs.left.ms;
+		this.debug.delta = this.container.chart.debugs.left.delta;
+		this.debug.deviance = this.container.chart.debugs.left.deviance;
+		this.debug.updates = this.container.chart.debugs.left.updates;
+		this.debug.index = this.container.chart.debugs.left.index;
+		this.debug.step = this.container.chart.debugs.right.step;
+		this.debug.max = this.container.chart.debugs.right.max;
 
 		this.updateOD(this.od, true);
 
 		app.subscribe("play.unstableRate", (value) => {
-			// urValue.innerText = value.toFixed(2);
+			if (value)
+				this.liveUrAvailable = true;
+
+			this.urValue.set(value);
 		});
 
 		app.subscribe("beatmap.stats.od.converted", (value) => {
-			
+			this.updateOD(value);
 		});
 
 		app.subscribe("hitErrors", (value) => {
@@ -238,7 +160,7 @@ const HitErrorChart = {
 	/**
 	 * Update OD and redraw all bars
 	 * 
-	 * @param {Number}	od
+	 * @param {number}	od
 	 */
 	updateOD(od, force = false) {
 		if (od === this.od && !force)
@@ -367,7 +289,9 @@ const HitErrorChart = {
 		this.debug.step.innerText = `${step} STP`;
 		this.debug.max.innerText = `${this.max.toFixed(3)} MAX`;
 
-		this.urValue.set(this.unstableRate.getStandardDeviation() * 10);
+		if (!this.liveUrAvailable)
+			this.urValue.set(this.unstableRate.getStandardDeviation() * 10);
+
 		this.updateAverage();
 		this.step = step;
 	},
@@ -423,7 +347,6 @@ const HitErrorChart = {
 
 		let newHits = hits.slice(this.index);
 		this.index = hits.length - 1;
-		console.log(newHits);
 
 		for (let hit of newHits) {
 			if (hit == 0) {
@@ -445,7 +368,9 @@ const HitErrorChart = {
 			}
 
 			this.hitAvg.addNumber(hit);
-			this.unstableRate.addNumber(hit);
+
+			if (!this.liveUrAvailable)
+				this.unstableRate.addNumber(hit);
 
 			if (newHits.length < 10)
 				this.visualizeHit(hit);
@@ -481,5 +406,3 @@ const HitErrorChart = {
 		this.render();
 	}
 }
-
-app.init();

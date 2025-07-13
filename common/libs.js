@@ -164,6 +164,170 @@ function nextFrameAsync() {
 }
 
 /**
+ * Verify if a value is an element.
+ *
+ * @param   {HTMLElement}   element
+ * @returns {boolean}
+ */
+function isElement(element) {
+	return (element && typeof element === "object" && element.tagName);
+}
+
+/**
+ * @typedef {"div" | "span" | "a" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "table" | "thead"
+ * 			| "tbody" | "tr" | "th" | "td" | "input" | "img" | "video" | "audio" | "iframe" | "b"
+ * 			| "canvas" | "code" | "em" | "footer" | "form" | "hr" | "i" | "label" | "ul" | "ol"
+ * 			| "li" | "meta" | "nav" | "option" | "optgroup" | "param" | "picture" | "pre" | "q"
+ * 			| "s" | "script" | "strong" | "style" | "svg" | "textarea"} MakeTreeHTMLTags
+ */
+
+/**
+ * Object represent the DOM structure will be passed into `makeTree()`
+ * @typedef {{
+ * 	id: String
+ * 	tag: MakeTreeHTMLTags
+ * 	text: String
+ * 	html: String
+ * 	for: String
+ * 	data: Object<string, string>
+ * 	attribute: Object<string, string>
+ * 	class: string | string[]
+ * 	child: Object<string, TreeObject>
+ *	src: String
+ * 	href: String
+ * }} TreeObject
+ */
+
+/**
+ * Object represent structure returned by `makeTree()`
+ * @typedef {{
+ * 	[x: string]: TreeDOM
+ * } & HTMLElement & HTMLInputElement} TreeDOM
+ */
+
+/**
+ * Make DOM tree quickly with javascript object...
+ *
+ * @param	{String}						tag			Tag Name
+ * @param	{String|String[]}				classes		Classes
+ * @param	{Object<string, TreeObject>}	child		Child List
+ * @param	{String}						path		Path (optional)
+ * @returns	{TreeDOM}
+ */
+function makeTree(tag, classes, child = {}, path = "") {
+	let container = document.createElement(tag);
+
+	switch (typeof classes) {
+		case "string":
+			container.classList.add(classes);
+			break;
+
+		case "object":
+			if (classes.length && classes.length > 0)
+				container.classList.add(...classes);
+			else
+				throw { code: -1, description: `makeTree(${path}): Invalid or empty "classes" type: ${typeof classes}` }
+
+			break;
+	}
+
+	// If child list is invalid, we can just stop parsing
+	// now
+	if (typeof child !== "object")
+		return container;
+
+	let keys = Object.keys(child);
+
+	for (let key of keys) {
+		if (typeof child[key] !== "object" || child[key] === null || child[key] === undefined)
+			continue;
+
+		let item = child[key];
+		let currentPath = (path === "")
+			? key
+			: `${path}.${key}`
+
+		if (typeof container[key] !== "undefined")
+			throw { code: -1, description: `makeTree(${currentPath}): Illegal key name: "${key}"` }
+
+		/**
+		 * If node key is defined and is an object, this is
+		 * possibility a custom element data
+		 *
+		 * Example: `createInput()`
+		 */
+		let customNode;
+
+		try {
+			customNode = (item.group && item.group.classList)
+				? item.group
+				: (item.container && item.container.classList)
+					? item.container
+					: (item.classList)
+						? item
+						: null;
+		} catch(e) {
+			throw { code: -1, description: `makeTree(${currentPath}): Custom node parse failed!`, data: e }
+		}
+
+		if (customNode) {
+			customNode.setAttribute("key", key);
+			customNode.dataset.path = currentPath;
+			container.appendChild(customNode);
+			container[key] = item;
+
+			continue;
+		}
+
+		// Normal Building
+		if (typeof item.tag !== "string")
+			throw { code: -1, description: `makeTree(${currentPath}): Invalid or undefined "tag" value` }
+
+		/** @type {HTMLElement} */
+		let node = makeTree(item.tag, item.class, item.child, currentPath);
+		node.dataset.path = currentPath;
+
+		if (typeof item.html !== "undefined")
+			node.innerHTML = item.html;
+
+		if (typeof item.text !== "undefined")
+			node.innerText = item.text;
+
+		if (typeof item.for === "string")
+			node.htmlFor = item.for;
+
+		if (typeof item.data === "object") {
+			for (let key of Object.keys(item.data))
+				node.dataset[key] = item.data[key];
+		}
+
+		if (typeof item.attribute === "object") {
+			for (let key of Object.keys(item.attribute))
+				node.setAttribute(key, item.attribute[key]);
+		}
+
+		// Special rule for icon tag
+		if (item.tag === "icon" && typeof item.icon === "string") {
+			node.dataset.icon = item.icon;
+
+			if (typeof item.style === "string")
+				node.classList.add(`style-${item.style}`);
+		}
+
+		for (let key of Object.keys(item)) {
+			if (!["tag", "class", "child", "html", "for", "text", "data", "attribute"].includes(key) && typeof node[key] !== "undefined")
+				node[key] = item[key];
+		}
+
+		node.setAttribute("key", key);
+		container.appendChild(node);
+		container[key] = node;
+	}
+
+	return container;
+}
+
+/**
  * Implements a fixed-length queue (circular buffer) to calculate the moving average
  * of the last N numbers.
  */
