@@ -93,8 +93,8 @@ const UnstableRatePanel = {
 			decimal: 2
 		});
 
-		this.container = makeTree("div", "unstable-rate-panel", {
-			labelNode: { tag: "span", class: "label", text: "độ bất ổn định" },
+		this.container = makeTree("div", ["counter-panel", "unstable-rate-panel"], {
+			labelNode: { tag: "div", class: "label", text: "độ bất ổn định" },
 			valueNode: this.urValue,
 
 			chart: { tag: "div", class: "hit-error-chart", child: {
