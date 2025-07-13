@@ -3,7 +3,7 @@ const UnstableRatePanel = {
 	BAR_WIDTH: 2,
 	BAR_SPACE: 2,
 
-	/** @type {HTMLDivElement} */
+	/** @type {TreeDOM} */
 	container: null,
 	
 	/** @type {HTMLDivElement} */
@@ -139,6 +139,10 @@ const UnstableRatePanel = {
 		this.debug.step = this.container.chart.debugs.right.step;
 		this.debug.max = this.container.chart.debugs.right.max;
 
+		(new ResizeObserver(() => {
+			this.updateOD(this.od, true);
+		})).observe(this.container);
+
 		this.updateOD(this.od, true);
 
 		app.subscribe("play.unstableRate", (value) => {
@@ -241,7 +245,7 @@ const UnstableRatePanel = {
 		this.bars = Array();
 		this.index = 0;
 		this.max = 0;
-		this.cWidth = this.container.clientWidth;
+		this.cWidth = this.container.chart.clientWidth;
 		this.reset();
 	},
 
