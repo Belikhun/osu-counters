@@ -5,7 +5,6 @@
  * @param	{number}								od 
  * @param	{"osu" | "mania" | "taiko" | "catch"}	mode 
  * @param	{string[]}								mods
- * @returns 
  */
 function odToMs(od, mode, mods = []) {
 	switch (mode) {

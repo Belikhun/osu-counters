@@ -83,8 +83,18 @@ const UnstableRatePanel = {
 	step: 5,
 	angBarHideTimeout: null,
 	liveUrAvailable: false,
+	showing: false,
 
-	init() {
+	alwaysVisible: false,
+	transparent: true,
+
+	init({
+		alwaysVisible = false,
+		transparent = true
+	} = {}) {
+		this.alwaysVisible = alwaysVisible;
+		this.transparent = transparent;
+
 		this.hitAvg = new MovingAverage(15);
 		this.unstableRate = new StandardDeviationCalculator();
 		this.urValue = new SmoothValue({
@@ -159,6 +169,57 @@ const UnstableRatePanel = {
 		app.subscribe("hitErrors", (value) => {
 			this.updateHits(value);
 		}, "precise");
+
+		// app.subscribe("beatmap.time.live", (value) => {
+		// 	if (value > 100 && app.get("state.name") == "play") {
+		// 		this.show();
+		// 		return;
+		// 	}
+
+		// 	this.hide();
+		// });
+
+		if (this.alwaysVisible) {
+			this.container.classList.add("display", "show");
+
+			if (this.transparent)
+				this.container.classList.add("do-transparent", "transparent");
+		} else {
+			app.subscribe("play.playerName", (value) => {
+				if (value && value.length > 0) {
+					this.show();
+					return;
+				}
+	
+				this.hide();
+			});
+
+			if (this.transparent)
+				this.container.classList.add("do-transparent");
+		}
+	},
+
+	async show() {
+		if (this.showing)
+			return;
+
+		this.showing = true;
+		this.container.classList.add("display");
+		await nextFrameAsync();
+		await delayAsync(100);
+		this.container.classList.add("show");
+		await delayAsync(500);
+		this.container.classList.add("transparent");
+	},
+
+	async hide() {
+		if (!this.showing)
+			return;
+
+		this.showing = false;
+		this.container.classList.remove("show");
+		await delayAsync(500);
+		this.container.classList.remove("display", "transparent");
 	},
 
 	/**
