@@ -28,7 +28,7 @@ interface ModuleInfo {
  */
 const compileScss = (scssFilePath: string, moduleName: string): void => {
 	// Determine the output CSS file path (same directory, styles.css)
-	const cssFilePath: string = path.join(path.dirname(scssFilePath), 'styles.css');
+	const cssFilePath: string = path.join(path.dirname(scssFilePath), 'styles.min.css');
 
 	console.log(`[${moduleName}]: Compiling ${scssFilePath} to ${cssFilePath}...`);
 
