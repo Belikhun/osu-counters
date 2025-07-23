@@ -24,6 +24,9 @@ const RankAndAccuracyPanel = {
 		alwaysVisible = false,
 		transparent = true
 	} = {}) {
+		this.alwaysVisible = alwaysVisible;
+		this.transparent = transparent;
+		
 		this.container = makeTree("div", ["counter-panel", "rank-acc-panel", "big", "center", "grade"], {
 			labelNode: { tag: "div", class: "label", text: "rank" },
 			valueNode: { tag: "div", class: "value", text: "---" },
