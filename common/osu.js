@@ -77,6 +77,9 @@ function odToMs(od, mode, mods = []) {
 function osuHasHit() {
 	const hits = app.get("play.hits");
 
+	if (!hits)
+		return false;
+
 	for (const value of Object.values(hits)) {
 		if (value > 0)
 			return true;
@@ -105,6 +108,11 @@ function getMinAcc() {
 }
 
 function getTotalObjects() {
-	const { circles, holds, sliders, spinners } = app.get("beatmap.stats.objects");
+	const objects = app.get("beatmap.stats.objects");
+
+	if (!objects)
+		return 0;
+
+	const { circles, holds, sliders, spinners } = objects;
 	return circles + (holds * 2) + sliders + spinners;
 }
