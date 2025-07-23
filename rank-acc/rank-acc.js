@@ -15,7 +15,15 @@ const RankAndAccuracyPanel = {
 	/** @type {SmoothNumber} */
 	minAccNumber: null,
 
-	init() {
+	showing: false,
+
+	alwaysVisible: false,
+	transparent: true,
+
+	init({
+		alwaysVisible = false,
+		transparent = true
+	} = {}) {
 		this.container = makeTree("div", ["counter-panel", "rank-acc-panel", "big", "center", "grade"], {
 			labelNode: { tag: "div", class: "label", text: "rank" },
 			valueNode: { tag: "div", class: "value", text: "---" },
@@ -112,5 +120,47 @@ const RankAndAccuracyPanel = {
 			prevTrend = trend;
 			this.accTrendNumber.value = trend;
 		}, 100);
-	}
+
+		if (this.alwaysVisible) {
+			this.container.classList.add("display", "show");
+
+			if (this.transparent)
+				this.container.classList.add("do-transparent", "transparent");
+		} else {
+			app.subscribe("play.playerName", (value) => {
+				if (value && value.length > 0) {
+					this.show();
+					return;
+				}
+	
+				this.hide();
+			});
+
+			if (this.transparent)
+				this.container.classList.add("do-transparent");
+		}
+	},
+
+	async show() {
+		if (this.showing)
+			return;
+
+		this.showing = true;
+		this.container.classList.add("display");
+		await nextFrameAsync();
+		await delayAsync(100);
+		this.container.classList.add("show");
+		await delayAsync(500);
+		this.container.classList.add("transparent");
+	},
+
+	async hide() {
+		if (!this.showing)
+			return;
+
+		this.showing = false;
+		this.container.classList.remove("show");
+		await delayAsync(500);
+		this.container.classList.remove("display", "transparent");
+	},
 }
