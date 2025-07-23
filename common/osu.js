@@ -89,6 +89,11 @@ function osuHasHit() {
 }
 
 function getMinAcc() {
+	const hits = app.get("play.hits");
+
+	if (!hits)
+		return 0;
+
 	const {
 		"0": c0,
 		"50": c50,
@@ -96,13 +101,16 @@ function getMinAcc() {
 		"300": c300,
 		geki,
 		katu
-	} = app.get("play.hits");
+	} = hits;
 
 	const accuracy = (app.get("play.mode.name") == "mania")
 		? (300 * (geki + c300) + (200 * katu) + (100 * c100) + (50 * c50))
 			/ (300 * getTotalObjects())
 		: (300 * c300 + 100 * c100 + 50 * c50)
 			/ (300 * getTotalObjects());
+
+	if (isNaN(accuracy) || !isFinite(accuracy))
+		return 0;
 
 	return accuracy * 100;
 }
