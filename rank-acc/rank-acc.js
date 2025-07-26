@@ -46,9 +46,11 @@ const RankAndAccuracyPanel = {
 
 			space: { tag: "div", class: ["space", "large"] },
 			right: { tag: "span", class: "right", child: {
+				minLabel: { tag: "span", class: "minLabel", text: "min" },
 				minAcc: { tag: "span", class: "minAcc", text: "0%" },
-				separator: { tag: "span", class: "separator", text: ">" },
-				currentAcc: { tag: "span", class: "currentAcc", text: "0%" }
+				separator: { tag: "span", class: "separator" },
+				currentLabel: { tag: "span", class: "currentLabel", text: "avg" },
+				currentAcc: { tag: "span", class: ["currentAcc", "big"], text: "0%" }
 			}}
 		});
 
