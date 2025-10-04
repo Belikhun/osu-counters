@@ -30,7 +30,7 @@ function time(date) {
  * Converts a hex color code (long or short format) to an RGB color string.
  * 
  * @param	{string}								hex		The hex color code string (e.g., "#212121" or "#f0c").
- * @returns	{?[r: number, g: number, b: number]}			The RGB color string "rgb(r, g, b)" or null if the format is invalid.
+ * @returns	{?[r: number, g: number, b: number]}			The RGB color values or null if the format is invalid.
  */
 function hexToRgb(hex) {
 	if (!hex || typeof hex !== "string")
