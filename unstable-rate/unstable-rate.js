@@ -179,23 +179,23 @@ const UnstableRatePanel = {
 		// 	this.hide();
 		// });
 
+		app.subscribe("play.playerName", (value) => {
+			if (value && value.length > 0) {
+				this.show();
+				return;
+			}
+
+			this.hide();
+		});
+
+		if (this.transparent)
+			this.container.classList.add("do-transparent");
+
 		if (this.alwaysVisible) {
 			this.container.classList.add("display", "show");
 
 			if (this.transparent)
-				this.container.classList.add("do-transparent", "transparent");
-		} else {
-			app.subscribe("play.playerName", (value) => {
-				if (value && value.length > 0) {
-					this.show();
-					return;
-				}
-	
-				this.hide();
-			});
-
-			if (this.transparent)
-				this.container.classList.add("do-transparent");
+				this.container.classList.add("transparent");
 		}
 	},
 
