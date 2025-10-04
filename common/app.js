@@ -203,7 +203,7 @@ const app = {
 	isChanged(value1, value2) {
 		// Can't efficiently compare objects yet.
 		if (value1 && typeof value1 == "object")
-			return true;
+			return !isObjectEqual(value1, value2, 1);
 
 		return value1 != value2;
 	},
