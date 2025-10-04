@@ -8,6 +8,14 @@
 		"value": "pp"
 	},
 	{
+		"uniqueID": "accentColor",
+		"type": "color",
+		"title": "Primary Color",
+		"description": "Color used to draw chart and other components",
+		"options": [],
+		"value": "#4db8ff"
+	},
+	{
 		"uniqueID": "alwaysDisplay",
 		"type": "checkbox",
 		"title": "Always Display",

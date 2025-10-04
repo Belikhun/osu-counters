@@ -296,6 +296,7 @@ const PPPanel = {
 
 	settings({
 		label = "pp",
+		accentColor = "#4db8ff",
 		alwaysDisplay = false,
 		disableBackground = false,
 		backgroundColor = "#212121",
@@ -304,6 +305,7 @@ const PPPanel = {
 	}) {
 		this.container.labelNode.innerText = label;
 		this.container.style.setProperty("--background-rgb", hexToRgb(backgroundColor).join(", "));
+		this.color = accentColor;
 
 		if (alwaysDisplay) {
 			this.show();
