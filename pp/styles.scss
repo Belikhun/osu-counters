@@ -2,6 +2,10 @@
 .pp-panel {
 	--accent-color: #ffffff;
 	--vert-space: 2px;
+	--color-h100: rgb(122, 255, 140);
+	--color-h50: rgb(255, 244, 142);
+	--color-miss: rgb(255, 143, 160);
+	--color-fcpp: rgb(232, 167, 255);
 
 	> .graph,
 	> .info {
@@ -75,8 +79,8 @@
 		flex-grow: 1;
 
 		margin-left: 0.2rem;
-		margin-right: 2rem;
-		margin-bottom: 1.5rem;
+		margin-right: 3rem;
+		margin-bottom: 2rem;
 
 		> .delta {
 			position: absolute;
@@ -127,7 +131,7 @@
 				left: 0;
 				width: 100%;
 				pointer-events: none;
-				background-color: rgba(114, 114, 114, 0.5);
+				background-color: rgba(148, 148, 148, 0.6);
 
 				box-sizing: border-box;
 				padding: 0.15rem 0.25rem;
@@ -170,7 +174,7 @@
 			top: 0;
 			bottom: 0;
 			left: 0;
-			right: -2rem;
+			right: -3rem;
 
 			pointer-events: none;
 
@@ -178,10 +182,10 @@
 				position: absolute;
 				top: 0;
 				right: 0;
-				width: 2rem;
+				width: 3rem;
 				padding: 0 0.25rem;
 
-				font-size: 0.5rem;
+				font-size: 0.825rem;
 				font-weight: 700;
 				text-align: left;
 				box-sizing: border-box;
@@ -207,7 +211,7 @@
 				--text-color: black;
 
 				&.fc {
-					--color: rgb(232, 167, 255);
+					--color: var(--color-fcpp);
 
 					> .line {
 						border-top-style: dashed;
@@ -225,7 +229,7 @@
 					top: 0;
 					left: 0;
 					height: 0;
-					right: 2rem;
+					right: 3rem;
 					border-top: 0.1rem solid var(--color);
 				}
 
@@ -233,10 +237,10 @@
 					position: absolute;
 					top: 50%;
 					right: 0;
-					width: 2rem;
+					width: 3rem;
 					
-					padding: 0.1rem 0.25rem;
-					font-size: 0.5rem;
+					padding: 0.15rem 0.25rem;
+					font-size: 0.75rem;
 					font-weight: 700;
 					text-align: left;
 					box-sizing: border-box;
@@ -271,15 +275,15 @@
 				transition: all 0.5s ease;
 
 				&.h100 {
-					--color: rgb(202, 234, 255);
+					--color: var(--color-h100);
 				}
 
 				&.h50 {
-					--color: rgb(255, 244, 142);
+					--color: var(--color-h50);
 				}
 
 				&.hmiss {
-					--color: rgb(255, 143, 160);
+					--color: var(--color-miss);
 					z-index: 1;
 				}
 
@@ -306,8 +310,9 @@
 			align-items: center;
 			gap: 0.5rem;
 
-			top: calc(100% + 0.5rem);
+			top: calc(100% + 1rem);
 			left: -0.2rem;
+			right: -3rem;
 			height: 1rem;
 
 			> .legend {
@@ -317,24 +322,24 @@
 				align-items: center;
 				gap: 0.25rem;
 
-				font-size: 0.5rem;
+				font-size: 0.675rem;
 				--color: rgb(200, 200, 200);
 				color: var(--color);
 
 				&.l100 {
-					--color: rgb(202, 234, 255);
+					--color: var(--color-h100);
 				}
 
 				&.l50 {
-					--color: rgb(255, 244, 142);
+					--color: var(--color-h50);
 				}
 
 				&.lmiss {
-					--color: rgb(255, 143, 160);
+					--color: var(--color-miss);
 				}
 
 				&.ppfc {
-					--color: rgb(232, 167, 255);
+					--color: var(--color-fcpp);
 				}
 
 				&.ppacv {
@@ -344,10 +349,10 @@
 				&::before {
 					content: "";
 					display: block;
-					width: 0.5rem;
-					height: 0.5rem;
+					width: 0.675rem;
+					height: 0.675rem;
 					margin-bottom: 0.1rem;
-					border-radius: 0.5rem;
+					border-radius: 0.675rem;
 					background-color: var(--color);
 				}
 			}

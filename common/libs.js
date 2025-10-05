@@ -185,7 +185,7 @@ function delayAsync(time) {
 
 function nextFrameAsync() {
 	return new Promise((resolve, reject) => {
-		requestAnimationFrame(() =>  resolve());
+		requestAnimationFrame(() => resolve());
 	});
 }
 
