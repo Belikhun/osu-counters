@@ -255,7 +255,7 @@ const PPPanel = {
 		}
 
 		app.subscribe("play.playerName", () => this.updateDisplayState());
-		app.subscribe("resultsScreen.playerName", () => this.updateDisplayState());
+		app.subscribe("state.name", () => this.updateDisplayState());
 		app.subscribe("resultsScreen.pp.current", () => this.updatePPValue());
 
 		this.color = "#4db8ff";
@@ -276,7 +276,7 @@ const PPPanel = {
 
 	updateDisplayState() {
 		const isPlaying = app.get("play.playerName", "").length > 0;
-		const isViewingResult = app.get("resultsScreen.playerName", "").length > 0;
+		const isViewingResult = (app.get("state.name", "") === "resultScreen");
 
 		this.container.classList.toggle("showing-result", isViewingResult);
 		this.isPlaying = isPlaying;
