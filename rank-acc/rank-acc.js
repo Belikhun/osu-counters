@@ -79,42 +79,9 @@ const RankAndAccuracyPanel = {
 			}
 		}, { duration: 0.2 });
 
-		app.subscribe("play.rank.current", (value) => {
-			if (!osuHasHit()) {
-				this.container.valueNode.innerText = "---";
-				this.container.valueNode.dataset.color = "gray";
-				return;
-			}
-
-			let color = "gray";
-
-			if (value === "XX" || value === "XH" || value === "X")
-				color = "whitesmoke";
-			else if (value === "SS" || value === "SH" || value === "S")
-				color = "yellow";
-			else if (value === "A")
-				color = "green";
-			else if (value === "B")
-				color = "blue";
-			else if (value === "C" || value == "D")
-				color = "red";
-
-			this.container.valueNode.innerText = value;
-			this.container.valueNode.dataset.color = color;
-		});
-
-		app.subscribe("play.accuracy", (value) => {
-			if (!osuHasHit()) {
-				this.accNumber.value = 100;
-				this.minAccNumber.value = 0;
-				this.accTrend.clear();
-				return;
-			}
-
-			this.accNumber.value = value;
-			this.minAccNumber.value = getMinAcc();
-			this.accTrend.addValue(value);
-		});
+		app.subscribe("play.rank.current", () => this.updateRank());
+		app.subscribe("play.accuracy", () => this.updateAccuracy());
+		app.subscribe("state.name", () => this.updateRank());
 
 		let prevTrend = 0;
 		setInterval(() => {
@@ -208,4 +175,43 @@ const RankAndAccuracyPanel = {
 		await delayAsync(500);
 		this.container.classList.remove("display", "transparent");
 	},
+
+	updateRank() {
+		if (app.get("state.name") !== "play") {
+			this.container.valueNode.innerText = "---";
+			this.container.valueNode.dataset.color = "gray";
+			return;
+		}
+
+		const value = app.get("play.rank.current");
+		let color = "gray";
+
+		if (value === "XX" || value === "XH" || value === "X")
+			color = "whitesmoke";
+		else if (value === "SS" || value === "SH" || value === "S")
+			color = "yellow";
+		else if (value === "A")
+			color = "green";
+		else if (value === "B")
+			color = "blue";
+		else if (value === "C" || value == "D")
+			color = "red";
+
+		this.container.valueNode.innerText = value;
+		this.container.valueNode.dataset.color = color;
+	},
+
+	updateAccuracy() {
+		if (app.get("state.name") !== "play") {
+			this.accNumber.value = 100;
+			this.minAccNumber.value = 0;
+			this.accTrend.clear();
+			return;
+		}
+
+		const value = app.get("play.accuracy");
+		this.accNumber.value = value;
+		this.minAccNumber.value = getMinAcc();
+		this.accTrend.addValue(value);
+	}
 }
