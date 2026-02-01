@@ -362,8 +362,9 @@
 				> .inner {
 					font-size: 0.75rem;
 					font-weight: 600;
+					line-height: 1.2;
 					color: color-mix(in srgb, var(--background-color), white 50%);
-					
+
 					hl {
 						color: color-mix(in srgb, var(--background-color), white 80%);
 					}
