@@ -321,7 +321,9 @@
 
 		transform-origin: top center;
 		transform: translateY(-1.5rem) scaleY(0.8);
-		transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+		transition:
+			transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+			background-color 0.4s ease;
 
 		> .ruleset {
 			display: inline-block;
