@@ -886,17 +886,21 @@ class SmoothValue {
 	/**
 	 * Create a new smooth value element.
 	 *
-	 * @param	{object}				options
-	 * @param	{string|string[]}		options.classes
-	 * @param	{number}				options.duration	Animation duration, in seconds.
-	 * @param	{(number) => number}	options.timing		Timing functions, see {@link Easing}.
-	 * @param	{number}				[options.decimal]	Amount of decimal numbers to display
+	 * @param	{object}							options
+	 * @param	{string|string[]}					options.classes
+	 * @param	{number}							options.duration		Animation duration, in seconds.
+	 * @param	{(number) => number}				options.timing			Timing functions, see {@link Easing}.
+	 * @param	{number}							[options.decimal]		Amount of decimal numbers to display
+	 * @param	{(value: number) => number|string}	[options.processor]		Function to process value before display
+	 * @param	{string}							[options.defaultValue]	Default value to show when no value is set
 	 */
 	constructor({
 		classes = [],
 		duration = 1,
 		timing = Easing.OutExpo,
-		decimal = 0
+		decimal = 0,
+		processor = (value) => value,
+		defaultValue = "---"
 	} = {}) {
 		if (typeof classes === "string")
 			classes = [classes];
@@ -905,17 +909,33 @@ class SmoothValue {
 		this.container.classList.add("smooth-value", ...classes);
 
 		this.decimal = decimal;
+		this.defaultValue = defaultValue;
 
 		this.number = new SmoothNumber((value) => {
-			this.container.innerText = value.toFixed(this.decimal);
+			value = processor(value);
+			this.container.innerText = (typeof value === "number")
+				? value.toFixed(this.decimal)
+				: value;
 		}, { duration, timing });
+
+		this.container.innerText = this.defaultValue;
 	}
 
+	/**
+	 * Set current value
+	 * 
+	 * @param	{number}	value
+	 */
 	set value(value) {
 		this.number.set(value);
 	}
 
 	async set(value) {
+		if (isNaN(value) || !isFinite(value)) {
+			this.container.innerText = this.defaultValue;
+			return this;
+		}
+
 		await this.number.set(value);
 		return this;
 	}
