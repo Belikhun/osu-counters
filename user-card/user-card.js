@@ -481,40 +481,13 @@ const UserCardPanel = {
 		return value.toLocaleString();
 	},
 
+	/**
+	 * @param	{number}	rank
+	 * @param	{string}	mode
+	 * @returns	{string}
+	 */
 	rankTier(rank, mode = "osu") {
-		if (rank <= 100)
-			return "lustrous";
-
-		// Estimated stats taken from
-		// https://github.com/ppy/osu-web/pull/12483
-		const players = {
-			osu: 2600000,
-			taiko: 340000,
-			fruits: 250000,
-			mania: 870000,
-		}[mode];
-
-		const percent = (rank / players) * 100;
-
-		if (percent <= 0.05)
-			return "radiant";
-
-		if (percent <= 0.15)
-			return "rhodium";
-
-		if (percent <= 0.5)
-			return "platinum";
-
-		if (percent <= 1.5)
-			return "gold";
-
-		if (percent <= 5)
-			return "silver";
-
-		if (percent <= 15)
-			return "bronze";
-
-		return "iron";
+		return rankTier(rank, mode);
 	},
 
 	/**
@@ -594,51 +567,20 @@ const UserCardPanel = {
 		};
 	},
 
+	/**
+	 * @param	{string}	code
+	 * @returns	{string}
+	 */
 	flagUrl(code) {
-		if (!code)
-			return `./flags/fallback.png`;
-
-		const baseFileName = code
-			.split('')
-			.map((c) => (c.charCodeAt(0) + 127397).toString(16))
-			.join('-');
-
-		return `https://osu.ppy.sh/assets/images/flags/${baseFileName}.svg`;
+		return countryFlagUrl(code) || "./flags/fallback.png";
 	},
 
-	async tryFetch(url, {
-		retries = 4,
-		delay = 1000,
-		timeout = 10000
-	} = {}) {
-		const proxies = [
-			// codetabs had ceased operations on june 30 2026 (https://github.com/jolav/codetabs)
-			// "https://api.codetabs.com/v1/proxy/?quest=",
-
-			"https://api.allorigins.win/get?url=",
-
-			// last resort
-			"https://proxy.belikhun.dev/"
-		];
-
-		for (let attempt = 1; attempt <= retries; attempt++) {
-			try {
-				const proxy = proxies[(attempt - 1) % proxies.length];
-				const proxiedUrl = proxy + encodeURIComponent(url);
-				const response = await fetch(proxiedUrl, { timeout }).then(res => res.json());
-
-				if (proxy.includes("allorigins"))
-					return JSON.parse(response.contents);
-
-				return response;
-			} catch (error) {
-				console.warn(`Fetch attempt ${attempt} failed:`, error);
-
-				if (attempt === retries)
-					throw error;
-				
-				await delayAsync(delay);
-			}
-		}
+	/**
+	 * @param	{string}	url
+	 * @param	{object}	[options]
+	 * @returns	{Promise<any>}
+	 */
+	async tryFetch(url, options = {}) {
+		return await Net.tryFetch(url, options);
 	}
 }

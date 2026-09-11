@@ -177,6 +177,24 @@ function randItem(array) {
 	return array[randBetween(0, array.length - 1, true)];
 }
 
+/**
+ * Flag of a country, from its two letter code.
+ *
+ * @param	{string}	code
+ * @returns	{?string}
+ */
+function countryFlagUrl(code) {
+	if (!code)
+		return null;
+
+	const name = code
+		.split("")
+		.map((character) => (character.charCodeAt(0) + 127397).toString(16))
+		.join("-");
+
+	return `https://osu.ppy.sh/assets/images/flags/${name}.svg`;
+}
+
 function delayAsync(time) {
 	return new Promise((resolve, reject) => {
 		setTimeout(() => resolve(), time);
@@ -932,6 +950,11 @@ class SmoothValue {
 
 	async set(value) {
 		if (isNaN(value) || !isFinite(value)) {
+			if (this.number.animator) {
+				this.number.animator.cancel();
+				this.number.animator = null;
+			}
+
 			this.container.innerText = this.defaultValue;
 			return this;
 		}
@@ -1082,5 +1105,160 @@ class TrendCalculator {
 	clear() {
 		this.dataPoints = [];
 		this._resetSums();
+	}
+}
+
+class Odometer {
+	/**
+	 * Content that rolls into place the way a mechanical counter turns over.
+	 * By default every character gets its own drum; with `split` off the whole
+	 * value rolls as one piece, which suits images.
+	 *
+	 * @param	{object}						[options]
+	 * @param	{string|string[]}				[options.classes]
+	 * @param	{number}						[options.duration]		Roll time in seconds.
+	 * @param	{string}						[options.placeholder]	Shown when there is no value.
+	 * @param	{boolean}						[options.split]			Roll each character on its own drum.
+	 * @param	{?(value: string) => Element}	[options.render]		Builds the element for a value.
+	 */
+	constructor({
+		classes = [],
+		duration = 0.35,
+		placeholder = "---",
+		split = true,
+		render = null
+	} = {}) {
+		if (typeof classes === "string")
+			classes = [classes];
+
+		this.container = document.createElement("span");
+		this.container.classList.add("odometer", ...classes);
+		this.container.style.setProperty("--roll-duration", `${duration}s`);
+
+		this.duration = duration;
+		this.placeholder = placeholder;
+		this.split = split;
+		this.render = render;
+		this.current = null;
+
+		/** @type {{ column: HTMLElement, roll: HTMLElement, value: ?string, task: ?number }[]} */
+		this.columns = [];
+
+		this.set(null);
+	}
+
+	set value(value) {
+		this.set(value);
+	}
+
+	get value() {
+		return this.current;
+	}
+
+	/**
+	 * @param	{?string}			value
+	 * @param	{"up" | "down"}		[direction]		Way the content travels.
+	 */
+	set(value, direction = "up") {
+		const text = (value === null || value === undefined || value === "")
+			? this.placeholder
+			: String(value);
+
+		if (text === this.current)
+			return this;
+
+		const first = (this.current === null);
+		this.current = text;
+
+		const items = (text === "")
+			? []
+			: (this.split) ? [...text] : [text];
+
+		while (this.columns.length > items.length) {
+			const spare = this.columns.pop();
+			clearTimeout(spare.task);
+			spare.column.remove();
+		}
+
+		for (let index = 0; index < items.length; index++) {
+			if (!this.columns[index])
+				this.columns.push(this.addColumn());
+
+			this.roll(this.columns[index], items[index], (first) ? null : direction);
+		}
+
+		return this;
+	}
+
+	/**
+	 * @returns	{{ column: HTMLElement, roll: HTMLElement, value: ?string, task: ?number }}
+	 */
+	addColumn() {
+		const column = document.createElement("span");
+		column.classList.add("column");
+
+		const roll = document.createElement("span");
+		roll.classList.add("roll");
+		column.appendChild(roll);
+		this.container.appendChild(column);
+
+		return { column, roll, value: null, task: null };
+	}
+
+	/**
+	 * @param	{?string}	value
+	 * @returns	{Element}
+	 */
+	make(value) {
+		const node = (this.render && value !== null)
+			? this.render(value)
+			: document.createElement("span");
+
+		if (!this.render)
+			node.innerText = (value === null) ? "" : value;
+
+		node.classList.add("char");
+		return node;
+	}
+
+	/**
+	 * @param	{object}			item
+	 * @param	{string}			value
+	 * @param	{?("up" | "down")}	direction	Null places the value without rolling.
+	 */
+	roll(item, value, direction) {
+		if (item.value === value)
+			return;
+
+		clearTimeout(item.task);
+
+		if (!direction) {
+			emptyNode(item.roll);
+			item.roll.appendChild(this.make(value));
+			item.roll.style.transform = "";
+			item.value = value;
+			return;
+		}
+
+		const outgoing = this.make(item.value);
+		const incoming = this.make(value);
+
+		emptyNode(item.roll);
+		item.roll.append(...((direction === "up") ? [outgoing, incoming] : [incoming, outgoing]));
+		item.roll.classList.remove("rolling");
+		item.roll.style.transform = (direction === "up") ? "translateY(0)" : "translateY(-50%)";
+		item.value = value;
+
+		requestAnimationFrame(() => {
+			item.roll.classList.add("rolling");
+			item.roll.style.transform = (direction === "up") ? "translateY(-50%)" : "translateY(0)";
+		});
+
+		item.task = setTimeout(() => {
+			item.roll.classList.remove("rolling");
+			item.roll.style.transform = "";
+			emptyNode(item.roll);
+			item.roll.appendChild(this.make(value));
+		}, this.duration * 1000 + 50);
 	}
 }

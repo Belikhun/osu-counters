@@ -17,6 +17,15 @@
 	--osc-color-darkYellow:		#444304;
 	--osc-color-darkRed:		#440505;
 	--osc-color-navyBlue:		#333D79;
+
+	--level-tier-iron:			#bab3ab, #bab3ab;
+	--level-tier-bronze:		#b88f7a, #855c47;
+	--level-tier-silver:		#e0e0eb, #a3a3c2;
+	--level-tier-gold:			#f0e4a8, #e0c952;
+	--level-tier-platinum:		#a8f0ef, #52e0df;
+	--level-tier-rhodium:		#d9f8d3, #a0cf96;
+	--level-tier-radiant:		#97dcff, #ed82ff;
+	--level-tier-lustrous:		#ffe600, #ed82ff;
 }
 
 body {
@@ -324,5 +333,15 @@ body {
 		&[data-color="gray"] {
 			color: rgb(56, 56, 56);
 		}
+	}
+}
+
+@keyframes simple-rotate {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
 	}
 }

@@ -30,15 +30,6 @@
 		background-color 0.4s ease,
 		opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 
-	--level-tier-iron: #bab3ab, #bab3ab;
-    --level-tier-bronze: #b88f7a, #855c47;
-    --level-tier-silver: #e0e0eb, #a3a3c2;
-    --level-tier-gold: #f0e4a8, #e0c952;
-    --level-tier-platinum: #a8f0ef, #52e0df;
-    --level-tier-rhodium: #d9f8d3, #a0cf96;
-    --level-tier-radiant: #97dcff, #ed82ff;
-    --level-tier-lustrous: #ffe600, #ed82ff;
-
 	> .overlay {
 		position: absolute;
 		display: none;
@@ -432,15 +423,5 @@
 		> .details {
 			transform: unset;
 		}
-	}
-}
-
-@keyframes simple-rotate {
-	0% {
-		transform: rotate(0deg);
-	}
-
-	100% {
-		transform: rotate(360deg);
 	}
 }
