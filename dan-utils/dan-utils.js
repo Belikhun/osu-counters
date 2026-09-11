@@ -164,7 +164,6 @@ const DanUtilsPanel = {
 
 	/** @type {?{ series: object[], xaxis: number[] }} */
 	strains: null,
-	hasPreciseTime: false,
 
 	current200Hits: null,
 	current100Hits: null,
@@ -480,16 +479,7 @@ const DanUtilsPanel = {
 		this.container.style.setProperty("--vert-space", this.CHART_PAD_VERT + "px");
 		(new ResizeObserver(() => this.updateSize())).observe(this.container.body.graph);
 
-		app.subscribe("currentTime", (value) => {
-			this.hasPreciseTime = true;
-			this.currentTime = value;
-			this.requestRender();
-		}, "precise");
-
 		app.subscribe("beatmap.time.live", (value) => {
-			if (this.hasPreciseTime)
-				return;
-
 			this.currentTime = value;
 			this.requestRender();
 		});
