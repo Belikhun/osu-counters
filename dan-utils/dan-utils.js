@@ -170,8 +170,8 @@ const DanUtilsPanel = {
 	current50Hits: null,
 	currentMissHits: null,
 
-	/** @type {Object<string, number>} */
-	overlayTasks: {},
+	/** @type {?number} */
+	overlayTask: null,
 
 	isPlaying: false,
 	isViewingResult: false,
@@ -452,10 +452,6 @@ const DanUtilsPanel = {
 				person: { tag: "div", class: ["card", "person"], child: {
 					skills: { tag: "div", class: "skills" },
 					note: { tag: "div", class: "note" }
-				}},
-
-				overlay: { tag: "div", class: "overlay", child: {
-					spinner: { tag: "div", class: "spinner" }
 				}}
 			}}
 		});
@@ -716,8 +712,6 @@ const DanUtilsPanel = {
 		this.container.style.setProperty("--result-opacity", resultBackgroundOpacity / 100);
 		this.container.style.setProperty("--border-radius", `${borderRadius}rem`);
 		this.container.classList.toggle("full-transparent", disableBackground);
-		this.container.classList.toggle("no-skillsets", !showSkillsets);
-		this.container.classList.toggle("no-stats", !showMapStats);
 
 		if (userChanged || keysChanged)
 			this.refreshPlayer();
@@ -824,17 +818,16 @@ const DanUtilsPanel = {
 	 * @param	{boolean}	loading
 	 */
 	setLoading(node, loading) {
-		const key = node.classList[0];
-		clearTimeout(this.overlayTasks[key]);
+		clearTimeout(this.overlayTask);
 
 		if (loading) {
 			node.overlay.classList.add("visible");
-			this.overlayTasks[key] = setTimeout(() => node.overlay.classList.add("show"), 1);
+			this.overlayTask = setTimeout(() => node.overlay.classList.add("show"), 1);
 			return;
 		}
 
 		node.overlay.classList.remove("show");
-		this.overlayTasks[key] = setTimeout(() => node.overlay.classList.remove("visible"), 600);
+		this.overlayTask = setTimeout(() => node.overlay.classList.remove("visible"), 600);
 	},
 
 	/**
@@ -1026,7 +1019,6 @@ const DanUtilsPanel = {
 		if (this.player.status === "none")
 			this.player = { status: "loading", skills: null, stale: false };
 
-		this.setLoading(this.container.bottom, true);
 		this.renderPlayer();
 
 		try {
@@ -1049,7 +1041,6 @@ const DanUtilsPanel = {
 		}
 
 		this.lastRefresh = Date.now();
-		this.setLoading(this.container.bottom, false);
 		this.renderPlayer();
 		this.requestRender();
 	},

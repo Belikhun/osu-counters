@@ -28,7 +28,12 @@
 		"type": "options",
 		"title": "Keymode",
 		"description": "Ladder to read the player's dan from. Auto follows the selected beatmap.",
-		"options": ["auto", "4K", "6K", "7K"],
+		"options": [
+			"auto",
+			"4K",
+			"6K",
+			"7K"
+		],
 		"value": "auto"
 	},
 	{
@@ -116,7 +121,7 @@
 		"title": "Background Opacity",
 		"description": "Set counter's background opacity when it's fully shown during gameplay (in percentage).",
 		"options": [],
-		"value": 20
+		"value": 60
 	},
 	{
 		"uniqueID": "resultBackgroundOpacity",
@@ -124,7 +129,7 @@
 		"title": "Result Background Opacity",
 		"description": "Set counter's background opacity during result screen (in percentage).",
 		"options": [],
-		"value": 60
+		"value": 85
 	},
 	{
 		"uniqueID": "borderRadius",

@@ -937,6 +937,7 @@ class SmoothValue {
 		}, { duration, timing });
 
 		this.container.innerText = this.defaultValue;
+		this.showingDefault = true;
 	}
 
 	/**
@@ -945,7 +946,7 @@ class SmoothValue {
 	 * @param	{number}	value
 	 */
 	set value(value) {
-		this.number.set(value);
+		this.set(value);
 	}
 
 	async set(value) {
@@ -956,9 +957,16 @@ class SmoothValue {
 			}
 
 			this.container.innerText = this.defaultValue;
+			this.showingDefault = true;
 			return this;
 		}
 
+		// The placeholder covers whatever the number last painted, so a value
+		// that happens to match it has to be written out by hand.
+		if (this.showingDefault && this.number.currentValue === value)
+			this.number.handler(value);
+
+		this.showingDefault = false;
 		await this.number.set(value);
 		return this;
 	}

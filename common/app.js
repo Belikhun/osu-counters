@@ -67,9 +67,11 @@ const app = {
 			this.dispatch(data, "common");
 		}, this.filters.common);
 
-		this.client.api_v2_precise((data) => {
-			this.dispatch(data, "precise");
-		}, this.filters.precise);
+		if (this.filters.precise.length > 0) {
+			this.client.api_v2_precise((data) => {
+				this.dispatch(data, "precise");
+			}, this.filters.precise);
+		}
 	},
 
 	registerCounter(counter) {
@@ -235,7 +237,7 @@ const app = {
 			}
 		}
 
-		if (this.filtersChanged.precise) {
+		if (this.filtersChanged.precise && this.client.sockets["/websocket/v2/precise"]) {
 			if (this.client.sockets["/websocket/v2/precise"].readyState === WebSocket.OPEN) {
 				this.client.sockets["/websocket/v2/precise"].send(`applyFilters:${JSON.stringify(this.filters.precise)}`);
 				this.filtersChanged.precise = false;
